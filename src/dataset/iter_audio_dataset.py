@@ -4,6 +4,10 @@ from src.dataset.audio_dataset import AudioDataset
 
 
 class IterAudioDataset(AudioDataset, IterableDataset):
+    """
+    A PyTorch IterableDataset that creates windows of audio data from a list of X and y files.
+
+    """
 
     def _generator(self):
         """
@@ -20,7 +24,7 @@ class IterAudioDataset(AudioDataset, IterableDataset):
             for i in range(0, X_waveform.shape[-1], self.window_size - self.window_overlap):
                 X_waveform_window = X_waveform[..., i:i + self.window_size]
                 y_waveform_window = y_waveform[..., i:i + self.window_size]
-                yield X_waveform_window, y_waveform_window
+                yield self._conform_to_window_size(X_waveform_window), self._conform_to_window_size(y_waveform_window)
 
     def __iter__(self):
         """

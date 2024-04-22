@@ -155,8 +155,8 @@ class VirtualBatchNorm1d(nn.Module):
         new_mean_sq = torch.mean(torch.square(x), dim=[0, 1], keepdim=True)
 
         # Calculate the overall mean and mean squared
-        mean = new_coeff * new_mean + old_coeff * self.mean
-        mean_sq = new_coeff * new_mean_sq + old_coeff * self.mean_sq
+        mean = new_coeff * new_mean + old_coeff * self.ref_mean
+        mean_sq = new_coeff * new_mean_sq + old_coeff * self.ref_mean_sq
 
         # Normalize the input tensor
         out = self._normalize(x, mean, mean_sq)

@@ -1,3 +1,4 @@
+import torch
 import torchaudio
 from torch.utils.data import IterableDataset
 
@@ -5,6 +6,17 @@ from src.immutable.xy_data_index_pair import XyDataIndexPair
 
 
 class AudioDataset:
+    """
+    A PyTorch Dataset that creates windows of audio data from a list of X and y files.
+
+    Args:
+        Xy_data_index_pair (XyDataIndexPair): The pair of X and y data indices.
+        data_dir (str): The directory where the data is stored.
+        window_size (int, optional): The size of the audio window. Defaults to 16384.
+        window_size_overlap_percentage (float, optional): The overlap percentage of the window size. Defaults to 0.5.
+        target_sample_rate (int, optional): The target sample rate of the audio data. Defaults to 16000.
+
+    """
     def __init__(self, Xy_data_index_pair: XyDataIndexPair, data_dir: str, window_size=16384,
                  window_size_overlap_percentage=0.5, target_sample_rate=16000):
         """
@@ -87,3 +99,21 @@ class AudioDataset:
         num_frames = metadata.num_frames
         assert sample_rate == self.target_sample_rate, f'Expected sample rate of {self.target_sample_rate} but got {sample_rate} for file {file}'
         return num_frames
+
+    def _conform_to_window_size(self, waveform):
+        """
+        Conforms the waveform to the window size.
+
+        Parameters:
+            waveform (torch.Tensor): The waveform to conform.
+
+        Returns:
+            torch.Tensor: The conformed waveform.
+        """
+        assert waveform.shape[
+                   -1] <= self.window_size, f'Expected waveform to be less than or equal to {self.window_size} but got {waveform.shape[-1]}'
+        assert len(waveform.shape) == 1, f'Expected waveform to be 1D but got {len(waveform.shape)}'
+
+        if waveform.shape[-1] < self.window_size:
+            waveform = torch.nn.functional.pad(waveform, (0, self.window_size - waveform.shape[-1]))
+        return waveform[None]

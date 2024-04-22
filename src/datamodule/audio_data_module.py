@@ -135,8 +135,8 @@ class AudioDataModule(LightningDataModule):
             - The conversion process is performed using the 'sox' command-line tool.
             - The sample rate for the conversion is determined by the 'sample_rate' attribute of the current object.
         """
-        print(f'CONVERTING WAVS FROM {source_dir} TO {target_dir}')
         if not os.path.exists(target_dir):
+            print(f'CONVERTING WAVS FROM {source_dir} TO {target_dir}')
             os.makedirs(target_dir)
             for wav_file in os.listdir(source_dir):
                 if wav_file.endswith('.wav'):

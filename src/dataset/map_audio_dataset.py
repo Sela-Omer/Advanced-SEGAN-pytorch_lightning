@@ -5,6 +5,10 @@ from src.dataset.audio_dataset import AudioDataset
 
 
 class MapAudioDataset(AudioDataset, Dataset):
+    """
+    A PyTorch Dataset that creates windows of audio data from a list of X and y files.
+    
+    """
     def __len__(self):
         """
         Returns the length of the dataset by calculating the number of windows that can be created from the audio files.
@@ -83,4 +87,5 @@ class MapAudioDataset(AudioDataset, Dataset):
                 frame_count += waveform_end_frame - waveform_start_frame
             except ValueError:
                 break
-        return torch.cat(X_window_lst, dim=0), torch.cat(y_window_lst, dim=0)
+        X_window, y_window = torch.cat(X_window_lst, dim=0), torch.cat(y_window_lst, dim=0)
+        return self._conform_to_window_size(X_window), self._conform_to_window_size(y_window)
