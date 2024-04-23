@@ -95,7 +95,7 @@ class FitScript(ABC, Callable):
             accelerator=self.service.config['FIT-PARAMS']['ACCELERATOR'],
             log_every_n_steps=int(self.service.config['FIT-PARAMS']['LOG_EVERY_N_STEPS']),
             callbacks=callbacks,
-            logger=TensorBoardLogger(save_dir=self.service.config['FIT-PARAMS']['LOG_PATH'],
+            logger=TensorBoardLogger(save_dir=self.service.config['FIT-PARAMS']['MODEL_STORE_PATH'],
                                      name=self.service.model_name),
         )
         return trainer
