@@ -4,4 +4,4 @@ import configparser
 config = configparser.ConfigParser()
 
 # Read the config.ini file
-config.read('config.ini')
+config.read('src/config.ini')

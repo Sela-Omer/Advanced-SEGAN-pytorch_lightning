@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from torch.utils.data import IterableDataset, Dataset
+from torch.utils.data import Dataset
 
 from src.dataset.audio_dataset import AudioDataset
 from src.display.display_waveform import plot_waveforms

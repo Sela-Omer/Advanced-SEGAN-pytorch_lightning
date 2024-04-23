@@ -1,6 +1,5 @@
 import torch
 import torchaudio
-from torch.utils.data import IterableDataset
 
 from src.helper.audio_helper import read_audio_metadata
 from src.immutable.xy_data_index_pair import XyDataIndexPair

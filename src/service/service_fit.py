@@ -1,7 +1,6 @@
 from typing import Callable, Dict
 
 import torch
-from lightning.pytorch.loggers import TensorBoardLogger
 
 from src.script.segan_fit_script import SEGAN_FitScript
 from src.service.service import Service
