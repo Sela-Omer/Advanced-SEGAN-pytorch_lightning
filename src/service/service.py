@@ -10,6 +10,7 @@ class Service(ABC):
         self.config = config
         self.model_name = f"{self.config['APP']['ARCH']}-{self.config['APP']['VERSION']}v"
         self.batch_size = int(self.config['APP']['BATCH_SIZE'])
+        self.cpu_workers = int(self.config['APP']['CPU_WORKERS'])
         self.dataset_size_percent = float(self.config['APP']['DATA_SUBSET_SIZE_PERCENT'])
 
     @property
