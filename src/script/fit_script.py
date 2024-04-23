@@ -97,8 +97,9 @@ class FitScript(ABC, Callable):
             callbacks=callbacks,
             logger=TensorBoardLogger(save_dir=self.service.config['FIT']['MODEL_STORE_PATH'],
                                      name=self.service.model_name),
-            gpus=int(self.service.config['FIT']['GPUS']),
+            devices=int(self.service.config['FIT']['DEVICES']),
             num_nodes=int(self.service.config['FIT']['NUM_NODES']),
+            strategy=self.service.config['FIT']['STRATEGY'],
         )
         return trainer
 
