@@ -123,7 +123,7 @@ class SEGAN_Discriminator(nn.Module):
         """
         # Check input type and shape
         assert isinstance(x, torch.Tensor), f'x must be a torch.Tensor instead of {type(x)}'
-        assert tuple(x.shape) == tuple(self.ref_shape), f'x must have shape {self.ref_shape} instead of {x.shape}'
+        assert tuple(x.shape[1:]) == tuple(self.ref_shape[1:]), f'x must have shape {self.ref_shape} instead of {x.shape}'
 
         # Apply discriminator layers
         x = self.discriminator_layers(x)

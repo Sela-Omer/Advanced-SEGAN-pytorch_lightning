@@ -1,7 +1,9 @@
-import pytorch_lightning as pl
+import lightning as pl
 import torch
-from torch import nn
 import torch.optim as optim
+from torch import nn
+
+from src.service.service import Service
 
 
 class SEGAN(pl.LightningModule):
@@ -24,7 +26,8 @@ class SEGAN(pl.LightningModule):
 
     """
 
-    def __init__(self, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0002, lr_disc=0.0002, lambda_l1=100):
+    def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0002, lr_disc=0.0002,
+                 lambda_l1=100):
         """
         Initializes the SEGAN model with the provided generator, discriminator, learning rates, and lambda value for L1 loss.
 
@@ -37,6 +40,7 @@ class SEGAN(pl.LightningModule):
 
         """
         super().__init__()
+        self.service = service
 
         self.automatic_optimization = False
 
@@ -92,7 +96,7 @@ class SEGAN(pl.LightningModule):
         g_loss = 0.5 * self.criterionGAN(fake_pred, valid)
 
         # Generator tries to get discriminator to output valid
-        l1_loss = self.criterionL1(generated_clean, clean)
+        l1_loss = self.criterionL1(generated_clean[:, 0].unsqueeze(1), clean)
 
         g_total_loss = g_loss + self.lambda_l1 * l1_loss
         self.log('g_loss', g_loss)
@@ -107,7 +111,7 @@ class SEGAN(pl.LightningModule):
         # Optimize Discriminator #
         ##########################
         # How well can the discriminator differentiate clean sounds?
-        real_pred = self.discriminator(clean)
+        real_pred = self.discriminator(torch.cat((clean, noisy), dim=1))
         fake_pred = self.discriminator(generated_clean.detach())
 
         # Discriminator tries to recognize real as valid
@@ -124,6 +128,15 @@ class SEGAN(pl.LightningModule):
         d_opt.zero_grad()
         self.manual_backward(d_loss)
         d_opt.step()
+
+    def validation_step(self, batch, batch_idx):
+        """
+        Perform a validation step.
+        Args:
+            batch (tuple): A tuple containing the noisy and clean audio samples.
+        """
+        self.log(self.service.config['FIT-PARAMS']['CHECKPOINT_MONITOR'], 0)
+        return 0
 
     def configure_optimizers(self):
         """

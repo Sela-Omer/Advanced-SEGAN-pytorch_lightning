@@ -2,6 +2,7 @@ import torch
 import torchaudio
 from torch.utils.data import IterableDataset
 
+from src.helper.audio_helper import read_audio_metadata
 from src.immutable.xy_data_index_pair import XyDataIndexPair
 
 
@@ -17,6 +18,7 @@ class AudioDataset:
         target_sample_rate (int, optional): The target sample rate of the audio data. Defaults to 16000.
 
     """
+
     def __init__(self, Xy_data_index_pair: XyDataIndexPair, data_dir: str, window_size=16384,
                  window_size_overlap_percentage=0.5, target_sample_rate=16000):
         """
@@ -94,7 +96,7 @@ class AudioDataset:
         Raises:
             AssertionError: If the sample rate of the audio file does not match the target sample rate.
         """
-        metadata = torchaudio.info(file)
+        metadata = read_audio_metadata(file)
         sample_rate = metadata.sample_rate
         num_frames = metadata.num_frames
         assert sample_rate == self.target_sample_rate, f'Expected sample rate of {self.target_sample_rate} but got {sample_rate} for file {file}'

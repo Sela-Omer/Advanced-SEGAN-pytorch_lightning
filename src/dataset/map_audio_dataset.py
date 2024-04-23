@@ -1,7 +1,9 @@
+import numpy as np
 import torch
 from torch.utils.data import IterableDataset, Dataset
 
 from src.dataset.audio_dataset import AudioDataset
+from src.display.display_waveform import plot_waveforms
 
 
 class MapAudioDataset(AudioDataset, Dataset):
@@ -89,3 +91,20 @@ class MapAudioDataset(AudioDataset, Dataset):
                 break
         X_window, y_window = torch.cat(X_window_lst, dim=0), torch.cat(y_window_lst, dim=0)
         return self._conform_to_window_size(X_window), self._conform_to_window_size(y_window)
+
+    def __repr__(self):
+        """
+        This function generates a visual representation of the object.
+        It randomly selects a sample size and a sample index, and then
+        plots the waveforms for the selected indices.
+        """
+        # Define the sample size
+        sample_size = 6
+
+        # Generate a random sample index
+        sample_index = np.random.randint(0, len(self) - sample_size)
+
+        # Iterate over the sample indices
+        for i in range(sample_index, sample_index + sample_size):
+            # Plot the waveforms for the current index
+            plot_waveforms(*self[i])

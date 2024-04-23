@@ -144,7 +144,8 @@ class VirtualBatchNorm1d(nn.Module):
 
         # Check if the shape of x matches the reference shape
         shape = x.shape
-        assert tuple(shape) == tuple(self.ref_shape), f'input must have shape {self.ref_shape} instead of {shape}'
+        assert tuple(shape[1:]) == tuple(
+            self.ref_shape[1:]), f'input must have shape {self.ref_shape[1:]} instead of {shape[1:]}'
 
         # Calculate the new and old coefficients
         new_coeff = 1. / (self.batch_size + 1.)
