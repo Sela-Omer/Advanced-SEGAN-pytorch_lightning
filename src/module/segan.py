@@ -135,7 +135,7 @@ class SEGAN(pl.LightningModule):
         Args:
             batch (tuple): A tuple containing the noisy and clean audio samples.
         """
-        self.log(self.service.config['FIT-PARAMS']['CHECKPOINT_MONITOR'], 0)
+        self.log(self.service.config['FIT']['CHECKPOINT_MONITOR'], 0)
         return 0
 
     def configure_optimizers(self):

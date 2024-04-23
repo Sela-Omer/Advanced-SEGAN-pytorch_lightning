@@ -46,9 +46,16 @@ def override_config(config, args):
         # Check if the argument value is not None
         if arg_value is not None:
             # Split the argument key to get the section and key
-            section, key = arg_key.split('_')
-            # Set the value in the config parser object
-            config.set(section, key, arg_value)
+            arg_lst = arg_key.split('_')
+            found_arg = False
+            for i in range(1, len(arg_lst)):
+                a1 = '_'.join(arg_lst[:i])
+                a2 = '_'.join(arg_lst[i:])
+                if config.has_option(a1, a2):
+                    config.set(a1, a2, arg_value)
+                    found_arg = True
+            if not found_arg:
+                raise ValueError(f"Invalid command line argument was passed. {arg_key} does not exist in config.ini")
 
 
 if __name__ == "__main__":

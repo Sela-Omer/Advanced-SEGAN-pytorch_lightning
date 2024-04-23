@@ -49,7 +49,7 @@ class FitScript(ABC, Callable):
         """
         # Create the model checkpoint callback
         checkpoint_callback = ModelCheckpoint(
-            monitor=self.service.config['FIT-PARAMS']['CHECKPOINT_MONITOR'],  # Metric to monitor
+            monitor=self.service.config['FIT']['CHECKPOINT_MONITOR'],  # Metric to monitor
             filename=self.service.model_name + '-{epoch:02d}-{val_loss:.2f}',
             save_top_k=3,  # Save the top 3 models
             mode='min',  # Minimize the monitored metric (val_loss)
@@ -91,14 +91,14 @@ class FitScript(ABC, Callable):
         """
         # Create the trainer with specified configurations
         trainer = pl.Trainer(
-            max_epochs=int(self.service.config['FIT-PARAMS']['N_EPOCHS']),
-            accelerator=self.service.config['FIT-PARAMS']['ACCELERATOR'],
-            log_every_n_steps=int(self.service.config['FIT-PARAMS']['LOG_EVERY_N_STEPS']),
+            max_epochs=int(self.service.config['FIT']['N_EPOCHS']),
+            accelerator=self.service.config['FIT']['ACCELERATOR'],
+            log_every_n_steps=int(self.service.config['FIT']['LOG_EVERY_N_STEPS']),
             callbacks=callbacks,
-            logger=TensorBoardLogger(save_dir=self.service.config['FIT-PARAMS']['MODEL_STORE_PATH'],
+            logger=TensorBoardLogger(save_dir=self.service.config['FIT']['MODEL_STORE_PATH'],
                                      name=self.service.model_name),
-            gpus=int(self.service.config['FIT-PARAMS']['GPUS']),
-            num_nodes=int(self.service.config['FIT-PARAMS']['NUM_NODES']),
+            gpus=int(self.service.config['FIT']['GPUS']),
+            num_nodes=int(self.service.config['FIT']['NUM_NODES']),
         )
         return trainer
 
