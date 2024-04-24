@@ -27,7 +27,7 @@ class SEGAN(pl.LightningModule):
     """
 
     def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0002, lr_disc=0.0002,
-                 lambda_l1=100):
+                 lambda_l1=100, example_input_array=None):
         """
         Initializes the SEGAN model with the provided generator, discriminator, learning rates, and lambda value for L1 loss.
 
@@ -40,6 +40,7 @@ class SEGAN(pl.LightningModule):
 
         """
         super().__init__()
+        self.example_input_array = example_input_array
         self.service = service
 
         self.automatic_optimization = False
@@ -55,7 +56,7 @@ class SEGAN(pl.LightningModule):
         self.criterionGAN = nn.MSELoss()  # Using Mean Squared Error Loss for LSGAN
         self.criterionL1 = nn.L1Loss()
 
-    def forward(self, noisy):
+    def forward(self, noisy, clean):
         """
         Apply the generator neural network to the noisy input.
 

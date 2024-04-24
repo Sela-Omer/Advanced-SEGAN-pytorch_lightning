@@ -60,7 +60,7 @@ class SEGAN_FitScript(FitScript):
         """
         # Get a batch of reference input data
         # The first element of the tuple is the input data, which we'll use to create the generator and discriminator
-        ref_batch_X, _ = next(iter(datamodule.train_dataloader()))
+        ref_batch_X, ref_batch_y = next(iter(datamodule.train_dataloader()))
 
         # Create the SEGAN generator module
         generator = SEGAN_Generator()
@@ -70,6 +70,6 @@ class SEGAN_FitScript(FitScript):
         discriminator = SEGAN_Discriminator(generator(ref_batch_X))
 
         # Create the SEGAN model
-        segan = SEGAN(self.service, generator, discriminator)
+        segan = SEGAN(self.service, generator, discriminator, example_input_array=(ref_batch_X, ref_batch_y))
 
         return segan

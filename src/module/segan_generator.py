@@ -133,17 +133,12 @@ class SEGAN_Generator(nn.Module):
         """
         # Check input tensor shape
         assert len(x.shape) == 3, "Input tensor must be 3D, Batch x Channels x Time"
-        assert x.shape[1] == self.encoder_dimensions[0], (
-            f"Input tensor must have the same number of channels as the encoder dimensions. "
-            f"Instead got input channels {x.shape[1]} and encoder dimensions {self.encoder_dimensions[0]}"
-        )
 
         # Encoding through all layers with skip connections
         skips = []  # List to store skip connections
         for i, layer in enumerate(self.encoder):
             skips.append(x)
             x = layer(x)
-
 
         # Concatenate the encoded tensor with a random tensor
         x = torch.cat([x, self._make_z(x.shape, device=x.device)], dim=1)
