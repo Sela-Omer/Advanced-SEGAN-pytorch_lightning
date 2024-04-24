@@ -2,6 +2,7 @@ from typing import Callable
 
 import torch
 from torch import nn
+from torch.autograd import Variable
 
 
 class SEGAN_Generator(nn.Module):
@@ -104,22 +105,6 @@ class SEGAN_Generator(nn.Module):
             nn.PReLU()
         )
 
-    def _make_z(self, shape, mean=0.0, std=1.0, device=None):
-        """
-        Generate a random tensor with a normal distribution.
-
-        Args:
-            shape (Tuple[int]): The shape of the tensor.
-            mean (float, optional): The mean of the normal distribution. Defaults to 0.0.
-            std (float, optional): The standard deviation of the normal distribution. Defaults to 1.0.
-            device (torch.device, optional): The device on which to place the tensor. Defaults to None, in which case the tensor is placed on the CPU.
-
-        Returns:
-            torch.Tensor: A tensor with the specified shape, mean, and standard deviation.
-        """
-        z = torch.normal(mean=torch.full(shape, mean), std=torch.full(shape, std))
-        return z.to(device if device else torch.device("cpu"))
-
     def _log(self, x: torch.Tensor, index: int, log: Callable[[str, torch.Tensor], None], prefix: str = "") -> None:
         """
         Log the mean and standard deviation of a tensor.
@@ -143,12 +128,13 @@ class SEGAN_Generator(nn.Module):
         # Log the standard deviation of the tensor
         log(f'{log_base_s}_std', x.std())
 
-    def forward(self, x, log=None, log_prefix='generator'):
+    def forward(self, x: torch.Tensor, z: torch.Tensor, log=None, log_prefix='generator'):
         """
         Performs the forward pass of the model.
 
         Args:
             x (torch.Tensor): The input tensor of shape (Batch, Channels, Time).
+            z (torch.Tensor): The random thought tensor of shape (Batch, Channels, Time).
             log (Callable[[str, torch.Tensor], None], optional): The logging function. Defaults to None.
             log_prefix (str, optional): The prefix for the log keys. Defaults to 'generator'.
 
@@ -168,7 +154,7 @@ class SEGAN_Generator(nn.Module):
             self._log(x, i, log, prefix=f"{log_prefix}_encoder")
 
         # Concatenate the encoded tensor with a random tensor
-        x = torch.cat([x, self._make_z(x.shape, device=x.device)], dim=1)
+        x = torch.cat([x, z], dim=1)
 
         # Reverse the skip connections list for easier indexing
         skips = skips[::-1]

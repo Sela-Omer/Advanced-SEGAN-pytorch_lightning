@@ -1,4 +1,5 @@
 import lightning as pl
+import numpy as np
 import torch
 import torch.optim as optim
 from torch import nn
@@ -60,18 +61,24 @@ class SEGAN(pl.LightningModule):
         self.criterionGAN = nn.MSELoss()  # Using Mean Squared Error Loss for LSGAN
         self.criterionL1 = nn.L1Loss()
 
-    def forward(self, noisy, clean):
+    def forward(self, noisy, clean, z=None):
         """
-        Apply the generator neural network to the noisy input.
+        Forward pass of the model.
 
         Args:
-            noisy (torch.Tensor): The noisy input tensor.
+            noisy (torch.Tensor): The input tensor representing the noisy data.
+            clean (torch.Tensor): The input tensor representing the clean data.
+            z (torch.Tensor, optional): The thought vector tensor. Defaults to None.
 
         Returns:
-            torch.Tensor: The generated cleaned version of the noisy input.
+            torch.Tensor: The generated clean data tensor.
         """
+        if z is None:
+            # create thought vector
+            z = torch.zeros([noisy.size(0), 1024, 8]).to(device=noisy.device)
+
         # Apply the generator neural network to the noisy input
-        generated_clean = self.generator(noisy)
+        generated_clean = self.generator(noisy, z.clone())
 
         return generated_clean
 
@@ -113,17 +120,22 @@ class SEGAN(pl.LightningModule):
                 - generated_ref_batch (torch.Tensor): The generated reference batch.
                 - generated_clean (torch.Tensor): The generated clean audio.
         """
+
         # Unpack the batch
         noisy, clean = batch
 
         # Create a detached copy of the reference batch
         ref_batch = self.ref_batch.clone().detach()
 
+        # create thought vector
+        ref_z = self._make_z([ref_batch.size(0), 1024, 8], device=noisy.device)
+        z = ref_z[:noisy.size(0)].clone()
+
         # Apply generator to reference batch
-        generated_ref_batch = self.generator(ref_batch[:, 0].unsqueeze(1)).detach()
+        generated_ref_batch = self.generator(ref_batch[:, 0].unsqueeze(1), ref_z.clone()).detach()
 
         # Generate a cleaned version of the noisy audio
-        generated_clean = self.generator(noisy, log=self.log, log_prefix=f'{log_prefix}_generator')
+        generated_clean = self.generator(noisy, z.clone(), log=self.log, log_prefix=f'{log_prefix}_generator')
 
         ##########################
         # Compute Generator Step #
@@ -221,6 +233,24 @@ class SEGAN(pl.LightningModule):
             'd_fake_loss': d_fake_loss,
             'd_total_loss': d_total_loss
         }
+
+    def _make_z(self, shape, mean=0.0, std=1.0, device=None):
+        """
+        Generate a random tensor with a normal distribution.
+
+        Args:
+            shape (Tuple[int]): The shape of the tensor.
+            mean (float, optional): The mean of the normal distribution. Defaults to 0.0.
+            std (float, optional): The standard deviation of the normal distribution. Defaults to 1.0.
+            device (torch.device, optional): The device on which to place the tensor. Defaults to None, in which case the tensor is placed on the CPU.
+
+        Returns:
+            torch.Tensor: A tensor with the specified shape, mean, and standard deviation.
+        """
+
+        z = nn.init.normal_(torch.zeros(shape), mean=mean, std=std)
+
+        return z.to(device if device else torch.device("cpu"))
 
     def training_step(self, batch):
         """
