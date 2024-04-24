@@ -1,3 +1,5 @@
+from typing import Callable
+
 import torch
 from torch import nn
 
@@ -118,27 +120,52 @@ class SEGAN_Generator(nn.Module):
         z = torch.normal(mean=torch.full(shape, mean), std=torch.full(shape, std))
         return z.to(device if device else torch.device("cpu"))
 
-    def forward(self, x):
+    def _log(self, x: torch.Tensor, index: int, log: Callable[[str, torch.Tensor], None], prefix: str = "") -> None:
         """
-        Apply the SEGAN generator to an input tensor.
+        Log the mean and standard deviation of a tensor.
 
         Args:
-            x (torch.Tensor): The input tensor. It should be 3D, Batch x Channels x Time.
+            x (torch.Tensor): The tensor to log.
+            index (int): The index of the tensor.
+            log (Callable[[str, torch.Tensor], None]): The log function.
+            prefix (str, optional): The prefix for the log key. Defaults to "".
+        """
+        # Return if log is None
+        if log is None:
+            return
+
+        layer_index_s = f'_layer_{index}' if index != -1 else ''
+        log_base_s = f'{prefix}{layer_index_s}_{tuple(x.shape)}'
+
+        # Log the mean of the tensor
+        log(f'{log_base_s}_mean', x.mean())
+
+        # Log the standard deviation of the tensor
+        log(f'{log_base_s}_std', x.std())
+
+    def forward(self, x, log=None, log_prefix='generator'):
+        """
+        Performs the forward pass of the model.
+
+        Args:
+            x (torch.Tensor): The input tensor of shape (Batch, Channels, Time).
+            log (Callable[[str, torch.Tensor], None], optional): The logging function. Defaults to None.
+            log_prefix (str, optional): The prefix for the log keys. Defaults to 'generator'.
 
         Returns:
-            torch.Tensor: The output tensor after applying the SEGAN generator.
-
-        Raises:
-            AssertionError: If the input tensor is not 3D or if the number of channels does not match the encoder dimensions.
+            torch.Tensor: The output tensor of the forward pass.
         """
         # Check input tensor shape
         assert len(x.shape) == 3, "Input tensor must be 3D, Batch x Channels x Time"
+
+        self._log(x, -1, log, prefix=f"{log_prefix}_input")
 
         # Encoding through all layers with skip connections
         skips = []  # List to store skip connections
         for i, layer in enumerate(self.encoder):
             skips.append(x)
             x = layer(x)
+            self._log(x, i, log, prefix=f"{log_prefix}_encoder")
 
         # Concatenate the encoded tensor with a random tensor
         x = torch.cat([x, self._make_z(x.shape, device=x.device)], dim=1)
@@ -149,6 +176,9 @@ class SEGAN_Generator(nn.Module):
         # Decoding through all layers with skip connections
         for i, layer in enumerate(self.decoder):
             x = layer(x)
+            self._log(x, i, log, prefix=f"{log_prefix}_decoder")
             x = torch.cat([x, skips[i]], dim=1)
+
+        self._log(x, -1, log, prefix=f"{log_prefix}_output")
 
         return x

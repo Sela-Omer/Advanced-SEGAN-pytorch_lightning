@@ -26,7 +26,7 @@ class SEGAN(pl.LightningModule):
 
     """
 
-    def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0002, lr_disc=0.0002,
+    def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0001, lr_disc=0.0001,
                  lambda_l1=100, example_input_array=None):
         """
         Initializes the SEGAN model with the provided generator, discriminator, learning rates, and lambda value for L1 loss.
@@ -41,6 +41,10 @@ class SEGAN(pl.LightningModule):
         """
         super().__init__()
         self.example_input_array = example_input_array
+
+        ref_batch = torch.cat(example_input_array, dim=1)
+        self.register_buffer('ref_batch', ref_batch, persistent=True)
+
         self.service = service
 
         self.automatic_optimization = False
@@ -55,6 +59,8 @@ class SEGAN(pl.LightningModule):
         # Initializing the loss functions
         self.criterionGAN = nn.MSELoss()  # Using Mean Squared Error Loss for LSGAN
         self.criterionL1 = nn.L1Loss()
+
+
 
     def forward(self, noisy, clean):
         """
@@ -82,8 +88,14 @@ class SEGAN(pl.LightningModule):
         # Unpack the batch
         noisy, clean = batch
 
+        ref_batch = self.ref_batch.clone().detach()
+
+        # Apply generator to ref_batch
+        generated_ref_batch = self.generator(ref_batch[:, 0].unsqueeze(1)).detach()
+
         # Generate a cleaned version of the noisy audio
-        generated_clean = self.generator(noisy)
+        generated_clean = self.generator(noisy, log=self.log, log_prefix='train_generator')
+
 
         # Define targets for real and fake examples
         valid = torch.ones(noisy.size(0), 1, device=self.device)
@@ -93,7 +105,7 @@ class SEGAN(pl.LightningModule):
         # Optimize Generator #
         ######################
         # The generator's goal is to fool the discriminator
-        fake_pred = self.discriminator(generated_clean)
+        fake_pred = self.discriminator(generated_clean, generated_ref_batch)
         g_loss = 0.5 * self.criterionGAN(fake_pred, valid)
 
         # Generator tries to get discriminator to output valid
@@ -108,12 +120,12 @@ class SEGAN(pl.LightningModule):
         self.manual_backward(g_total_loss)
         g_opt.step()
 
-        ##########################
-        # Optimize Discriminator #
-        ##########################
+        # ##########################
+        # # Optimize Discriminator #
+        # ##########################
         # How well can the discriminator differentiate clean sounds?
-        real_pred = self.discriminator(torch.cat((clean, noisy), dim=1))
-        fake_pred = self.discriminator(generated_clean.detach())
+        real_pred = self.discriminator(torch.cat((clean, noisy), dim=1), ref_batch)
+        fake_pred = self.discriminator(generated_clean.detach(), generated_ref_batch)
 
         # Discriminator tries to recognize real as valid
         real_loss = self.criterionGAN(real_pred, valid)
