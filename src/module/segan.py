@@ -27,7 +27,7 @@ class SEGAN(pl.LightningModule):
 
     """
 
-    def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0001, lr_disc=0.0001,
+    def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0002, lr_disc=0.0002,
                  lambda_l1=100, example_input_array=None):
         """
         Initializes the SEGAN model with the provided generator, discriminator, learning rates, and lambda value for L1 loss.
