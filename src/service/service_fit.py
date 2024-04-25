@@ -2,6 +2,7 @@ from typing import Callable, Dict
 
 import torch
 
+from src.helper.param_helper import convert_param_to_type
 from src.script.segan_fit_script import SEGAN_FitScript
 from src.service.service import Service
 
@@ -25,7 +26,7 @@ class ServiceFit(Service):
             if '=' not in hyperparam:
                 continue
             key, value = hyperparam.split('=')
-            self.model_hyperparams[key] = value
+            self.model_hyperparams[key] = convert_param_to_type(value)
 
     @property
     def scripts(self) -> Dict[str, Callable]:
