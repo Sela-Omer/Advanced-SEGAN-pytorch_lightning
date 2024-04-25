@@ -60,16 +60,19 @@ class SEGAN_FitScript(FitScript):
         """
         # Get a batch of reference input data
         # The first element of the tuple is the input data, which we'll use to create the generator and discriminator
-        ref_batch_X, _ = next(iter(datamodule.train_dataloader()))
+        ref_batch_X, ref_batch_y = next(iter(datamodule.train_dataloader()))
 
         # Create the SEGAN generator module
         generator = SEGAN_Generator()
 
         # Create the SEGAN discriminator module
         # The discriminator is initialized with the output of the generator on the reference data
-        discriminator = SEGAN_Discriminator(generator(ref_batch_X))
+        discriminator = SEGAN_Discriminator(ref_batch_X.shape[0], ref_batch_X.shape[-1])
+
+        model_hyperparams = self.service.model_hyperparams if hasattr(self.service, 'model_hyperparams') else {}
 
         # Create the SEGAN model
-        segan = SEGAN(self.service, generator, discriminator)
+        segan = SEGAN(self.service, generator, discriminator, example_input_array=(ref_batch_X, ref_batch_y),
+                      **model_hyperparams)
 
         return segan

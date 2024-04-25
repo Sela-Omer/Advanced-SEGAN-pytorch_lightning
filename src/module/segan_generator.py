@@ -1,5 +1,8 @@
+from typing import Callable
+
 import torch
 from torch import nn
+from torch.autograd import Variable
 
 
 class SEGAN_Generator(nn.Module):
@@ -102,51 +105,56 @@ class SEGAN_Generator(nn.Module):
             nn.PReLU()
         )
 
-    def _make_z(self, shape, mean=0.0, std=1.0, device=None):
+    def _log(self, x: torch.Tensor, index: int, log: Callable[[str, torch.Tensor], None], prefix: str = "") -> None:
         """
-        Generate a random tensor with a normal distribution.
+        Log the mean and standard deviation of a tensor.
 
         Args:
-            shape (Tuple[int]): The shape of the tensor.
-            mean (float, optional): The mean of the normal distribution. Defaults to 0.0.
-            std (float, optional): The standard deviation of the normal distribution. Defaults to 1.0.
-            device (torch.device, optional): The device on which to place the tensor. Defaults to None, in which case the tensor is placed on the CPU.
-
-        Returns:
-            torch.Tensor: A tensor with the specified shape, mean, and standard deviation.
+            x (torch.Tensor): The tensor to log.
+            index (int): The index of the tensor.
+            log (Callable[[str, torch.Tensor], None]): The log function.
+            prefix (str, optional): The prefix for the log key. Defaults to "".
         """
-        z = torch.normal(mean=torch.full(shape, mean), std=torch.full(shape, std))
-        return z.to(device if device else torch.device("cpu"))
+        # Return if log is None
+        if log is None:
+            return
 
-    def forward(self, x):
+        layer_index_s = f'_layer_{index}' if index != -1 else ''
+        log_base_s = f'{prefix}{layer_index_s}_{tuple(x.shape)}'
+
+        # Log the mean of the tensor
+        log(f'{log_base_s}_mean', x.mean())
+
+        # Log the standard deviation of the tensor
+        log(f'{log_base_s}_std', x.std())
+
+    def forward(self, x: torch.Tensor, z: torch.Tensor, log=None, log_prefix='generator'):
         """
-        Apply the SEGAN generator to an input tensor.
+        Performs the forward pass of the model.
 
         Args:
-            x (torch.Tensor): The input tensor. It should be 3D, Batch x Channels x Time.
+            x (torch.Tensor): The input tensor of shape (Batch, Channels, Time).
+            z (torch.Tensor): The random thought tensor of shape (Batch, Channels, Time).
+            log (Callable[[str, torch.Tensor], None], optional): The logging function. Defaults to None.
+            log_prefix (str, optional): The prefix for the log keys. Defaults to 'generator'.
 
         Returns:
-            torch.Tensor: The output tensor after applying the SEGAN generator.
-
-        Raises:
-            AssertionError: If the input tensor is not 3D or if the number of channels does not match the encoder dimensions.
+            torch.Tensor: The output tensor of the forward pass.
         """
         # Check input tensor shape
         assert len(x.shape) == 3, "Input tensor must be 3D, Batch x Channels x Time"
-        assert x.shape[1] == self.encoder_dimensions[0], (
-            f"Input tensor must have the same number of channels as the encoder dimensions. "
-            f"Instead got input channels {x.shape[1]} and encoder dimensions {self.encoder_dimensions[0]}"
-        )
+
+        self._log(x, -1, log, prefix=f"{log_prefix}_input")
 
         # Encoding through all layers with skip connections
         skips = []  # List to store skip connections
         for i, layer in enumerate(self.encoder):
             skips.append(x)
             x = layer(x)
-
+            self._log(x, i, log, prefix=f"{log_prefix}_encoder")
 
         # Concatenate the encoded tensor with a random tensor
-        x = torch.cat([x, self._make_z(x.shape, device=x.device)], dim=1)
+        x = torch.cat([x, z], dim=1)
 
         # Reverse the skip connections list for easier indexing
         skips = skips[::-1]
@@ -154,6 +162,9 @@ class SEGAN_Generator(nn.Module):
         # Decoding through all layers with skip connections
         for i, layer in enumerate(self.decoder):
             x = layer(x)
+            self._log(x, i, log, prefix=f"{log_prefix}_decoder")
             x = torch.cat([x, skips[i]], dim=1)
+
+        self._log(x, -1, log, prefix=f"{log_prefix}_output")
 
         return x
