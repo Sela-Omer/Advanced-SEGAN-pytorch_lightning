@@ -19,6 +19,14 @@ class ServiceFit(Service):
 
         torch.set_float32_matmul_precision(config['FIT']['TORCH_PRECISION'])
 
+        self.model_hyperparams = {}
+        hyperparam_lst = config['FIT']['MODEL_HYPERPARAMS'].split(',')
+        for hyperparam in hyperparam_lst:
+            if '=' not in hyperparam:
+                continue
+            key, value = hyperparam.split('=')
+            self.model_hyperparams[key] = value
+
     @property
     def scripts(self) -> Dict[str, Callable]:
         """

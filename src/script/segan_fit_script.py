@@ -69,7 +69,10 @@ class SEGAN_FitScript(FitScript):
         # The discriminator is initialized with the output of the generator on the reference data
         discriminator = SEGAN_Discriminator(ref_batch_X.shape[0], ref_batch_X.shape[-1])
 
+        model_hyperparams = self.service.model_hyperparams if hasattr(self.service, 'model_hyperparams') else {}
+
         # Create the SEGAN model
-        segan = SEGAN(self.service, generator, discriminator, example_input_array=(ref_batch_X, ref_batch_y))
+        segan = SEGAN(self.service, generator, discriminator, example_input_array=(ref_batch_X, ref_batch_y),
+                      **model_hyperparams)
 
         return segan
