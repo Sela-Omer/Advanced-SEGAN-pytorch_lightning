@@ -47,13 +47,16 @@ class FitScript(ABC, Callable):
         Returns:
             list: A list of callbacks, including a model checkpoint callback, a progress bar callback, and a device stats callback.
         """
-        # Create the model checkpoint callback
-        checkpoint_callback = ModelCheckpoint(
-            monitor=self.service.config['FIT']['CHECKPOINT_MONITOR'],  # Metric to monitor
-            filename=self.service.model_name + '-{epoch:02d}-{val_loss:.2f}',
-            save_top_k=3,  # Save the top 3 models
-            mode='min',  # Minimize the monitored metric (val_loss)
-        )
+
+        checkpoint_callback_lst = []
+        for metric_name in self.service.config['FIT']['CHECKPOINT_CALLBACKS'].split(','):
+            # Create the model checkpoint callback
+            checkpoint_callback_lst.append(ModelCheckpoint(
+                monitor=metric_name,  # Metric to monitor
+                filename=self.service.model_name + '-{epoch:02d}-{' + metric_name + ':.2f}',
+                save_top_k=3,  # Save the top 3 checkpoints
+                mode='max',  # Maximize the monitored metric
+            ))
 
         # Create the progress bar callback
         progress_bar_callback = TQDMProgressBar()
@@ -62,7 +65,7 @@ class FitScript(ABC, Callable):
         device_stats_callback = DeviceStatsMonitor()
 
         # Create the list of callbacks
-        return [checkpoint_callback, progress_bar_callback, device_stats_callback]
+        return checkpoint_callback_lst + [progress_bar_callback, device_stats_callback]
 
     @abstractmethod
     def create_architecture(self, datamodule: pl.LightningDataModule):
