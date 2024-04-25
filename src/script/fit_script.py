@@ -92,15 +92,15 @@ class FitScript(ABC, Callable):
         # Create the trainer with specified configurations
         trainer = pl.Trainer(
             max_epochs=int(self.service.config['FIT']['N_EPOCHS']),
-            accelerator='gpu',#self.service.config['FIT']['ACCELERATOR'],
+            accelerator=self.service.config['FIT']['ACCELERATOR'],
             log_every_n_steps=int(self.service.config['FIT']['LOG_EVERY_N_STEPS']),
             callbacks=callbacks,
             logger=TensorBoardLogger(save_dir=self.service.config['FIT']['MODEL_STORE_PATH'],
                                      name=self.service.model_name,
                                      log_graph=bool(self.service.config['FIT']['LOG_GRAPH'])),
-            # devices=int(self.service.config['FIT']['DEVICES']),
-            # num_nodes=int(self.service.config['FIT']['NUM_NODES']),
-            # strategy=self.service.config['FIT']['STRATEGY'],
+            devices=int(self.service.config['FIT']['DEVICES']),
+            num_nodes=int(self.service.config['FIT']['NUM_NODES']),
+            strategy=self.service.config['FIT']['STRATEGY'],
         )
         return trainer
 

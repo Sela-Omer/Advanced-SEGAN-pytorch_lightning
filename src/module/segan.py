@@ -4,6 +4,7 @@ import torch
 import torch.optim as optim
 from torch import nn
 
+from src.helper.metrics_helper import composite_metrics
 from src.service.service import Service
 
 
@@ -23,12 +24,12 @@ class SEGAN(pl.LightningModule):
         >>> from src.module.segan_generator import SEGAN_Generator
         >>> generator = SEGAN_Generator(encoder_dimensions=[1, 16, 32, 32, 64, 64, 128, 128, 256, 256, 512, 1024])
         >>> discriminator = SEGAN_Discriminator(torch.rand((400,2,16384)), n_out_features=1, discriminator_dimensions=[2, 16, 32, 32, 64, 64, 128, 128, 256, 256, 512, 1024], vbn_epsilon=1e-5)
-        >>> model = SEGAN(generator, discriminator, lr_gen=0.0002, lr_disc=0.0002, lambda_l1=100)
+        >>> model = SEGAN(generator, discriminator, lr_gen=0.0001, lr_disc=0.0001, lambda_l1=100)
 
     """
 
     def __init__(self, service: Service, generator: nn.Module, discriminator: nn.Module, lr_gen=0.0002, lr_disc=0.0002,
-                 lambda_l1=100, example_input_array=None):
+                 lambda_l1=100, example_input_array=None, sample_rate=16000):
         """
         Initializes the SEGAN model with the provided generator, discriminator, learning rates, and lambda value for L1 loss.
 
@@ -41,6 +42,7 @@ class SEGAN(pl.LightningModule):
 
         """
         super().__init__()
+        self.sample_rate = sample_rate
         self.example_input_array = example_input_array
 
         ref_batch = torch.cat(example_input_array, dim=1)
@@ -195,6 +197,60 @@ class SEGAN(pl.LightningModule):
             'g_total_loss': g_total_loss
         }
 
+    def _calc_generator_composite_metrics(self, intermediate_step: dict) -> dict | None:
+        """
+        Calculate the composite metrics for the generator output.
+
+        Args:
+            intermediate_step (dict): A dictionary containing the intermediate step outputs.
+
+        Returns:
+            dict: A dictionary containing the composite metrics:
+            - CSIG (float): Composite signal-to-interference+gradient ratio.
+            - CBAK (float): Composite background quality.
+            - COVL (float): Composite over-all quality.
+            - wss_dist (float): Weighted signal to noise+distortion ratio.
+            - llr_mean (float): Mean log-likelihood ratio.
+            - PESQ (float): Perceptual Evaluation of Speech Quality.
+            - SSNR (float): Signal-to-noise ratio segment-wise.
+        """
+        # Extract the generator raw prediction and clean audio from the intermediate step
+        generator_raw_pred = intermediate_step['generator_raw_pred']
+        clean = intermediate_step['clean']
+
+        # Convert the clean and generator raw prediction tensors to numpy arrays
+        clean_batch_arr = clean.detach().cpu().squeeze(1).numpy()
+        generator_raw_pred_batch_arr = generator_raw_pred.detach().cpu().squeeze(1).numpy()
+
+        comp_metrics = None
+        count = 0
+        for i in range(clean_batch_arr.shape[0]):
+            clean_arr = clean_batch_arr[i]
+            generator_raw_pred_arr = generator_raw_pred_batch_arr[i]
+            try:
+                comp_metrics_i = composite_metrics(clean_arr,
+                                                   generator_raw_pred_arr,
+                                                   self.sample_rate)
+
+                if comp_metrics is None:
+                    comp_metrics = comp_metrics_i
+                else:
+                    for key in comp_metrics:
+                        comp_metrics[key] += comp_metrics_i[key]
+                count += 1
+            except:
+                pass
+
+        # If no utterances were processed, return None
+        if comp_metrics is None:
+            return None
+
+        # Average the metrics across the batch
+        for key in comp_metrics:
+            comp_metrics[key] /= count
+
+        return comp_metrics
+
     def _calc_discriminator_loss(self, intermediate_step: dict, valid: torch.Tensor, fake: torch.Tensor) -> dict:
         """
         Calculate the discriminator loss for the SEGAN model.
@@ -284,7 +340,7 @@ class SEGAN(pl.LightningModule):
         # Log the generator loss
         self.log('train_g_loss', generator_loss_dict['g_loss'])
         self.log('train_g_l1_loss', generator_loss_dict['g_l1_loss'])
-        self.log('train_g_total_loss', generator_loss_dict['g_total_loss'])
+        self.log('train_g_total_loss', generator_loss_dict['g_total_loss'], prog_bar=True)
 
         # Zero the gradients and perform backpropagation
         g_opt.zero_grad()
@@ -301,7 +357,7 @@ class SEGAN(pl.LightningModule):
         # Log the discriminator loss
         self.log('train_d_real_loss', discriminator_loss_dict['d_real_loss'])
         self.log('train_d_fake_loss', discriminator_loss_dict['d_fake_loss'])
-        self.log('train_d_loss', discriminator_loss_dict['d_total_loss'])
+        self.log('train_d_loss', discriminator_loss_dict['d_total_loss'], prog_bar=True)
 
         # Zero the gradients and perform backpropagation
         d_opt.zero_grad()
@@ -332,11 +388,19 @@ class SEGAN(pl.LightningModule):
         #####################
         # Calculate the generator loss
         generator_loss_dict = self._calc_generator_loss(intermediate_step, valid)
+        composite_metrics_dict = self._calc_generator_composite_metrics(intermediate_step)
 
         # Log the generator loss
         self.log('valid_g_loss', generator_loss_dict['g_loss'])
         self.log('valid_g_l1_loss', generator_loss_dict['g_l1_loss'])
-        self.log('valid_g_total_loss', generator_loss_dict['g_total_loss'])
+        self.log('valid_g_total_loss', generator_loss_dict['g_total_loss'], prog_bar=True)
+
+        if composite_metrics_dict is not None:
+            self.log('valid_PESQ', composite_metrics_dict['PESQ'], prog_bar=True)
+            self.log('valid_CSIG', composite_metrics_dict['CSIG'], prog_bar=True)
+            self.log('valid_CBAK', composite_metrics_dict['CBAK'], prog_bar=True)
+            self.log('valid_COVL', composite_metrics_dict['COVL'], prog_bar=True)
+            self.log('valid_SSNR', composite_metrics_dict['SSNR'], prog_bar=True)
 
         #########################
         # Discriminator Metrics #
@@ -348,7 +412,7 @@ class SEGAN(pl.LightningModule):
         # Log the discriminator loss
         self.log('valid_d_real_loss', discriminator_loss_dict['d_real_loss'])
         self.log('valid_d_fake_loss', discriminator_loss_dict['d_fake_loss'])
-        self.log('valid_d_loss', discriminator_loss_dict['d_total_loss'])
+        self.log('valid_d_loss', discriminator_loss_dict['d_total_loss'], prog_bar=True)
 
         self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'])
 
