@@ -137,7 +137,10 @@ class SEGAN(pl.LightningModule):
         generated_ref_batch = self.generator(ref_batch[:, 0].unsqueeze(1), ref_z.clone()).detach()
 
         # Generate a cleaned version of the noisy audio
-        generated_clean = self.generator(noisy, z.clone(), log=self.log, log_prefix=f'{log_prefix}_generator')
+        if log_prefix is None:
+            generated_clean = self.generator(noisy, z.clone())
+        else:
+            generated_clean = self.generator(noisy, z.clone(), log=self.log, log_prefix=f'{log_prefix}_generator')
 
         ##########################
         # Compute Generator Step #
@@ -378,7 +381,7 @@ class SEGAN(pl.LightningModule):
         After that, it calculates the generator loss by calling the `_calc_generator_loss` method and logs the generator loss. Similarly, it calculates the discriminator loss by calling the `_calc_discriminator_loss` method and logs the discriminator loss.
         """
         # Compute the intermediate step
-        intermediate_step = self._compute_intermediate_step(batch, 'valid')
+        intermediate_step = self._compute_intermediate_step(batch, log_prefix=None)
 
         # Get the targets for real and fake examples
         valid, fake = self._get_targets_for_real_and_fake_examples(intermediate_step['batch_size'])
