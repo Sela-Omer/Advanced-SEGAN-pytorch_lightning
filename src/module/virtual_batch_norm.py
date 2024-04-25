@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class VirtualBatchNorm1d(nn.Module):
     def __init__(self, num_features: int, batch_size: int, epsilon: float = 1e-5):
-        super().__init__()
+        super(VirtualBatchNorm1d, self).__init__()
 
         # Assert that num_features is an integer
         assert isinstance(num_features, int), f'num_features must be an integer instead of {type(num_features)}'

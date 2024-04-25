@@ -26,7 +26,7 @@ class AudioDataModule(pl.LightningDataModule):
             audio_dataset_class: The class representing the audio dataset.
             sample_rate (int, optional): The sample rate of the audio data. Defaults to 16000.
         """
-        super().__init__()
+        super(AudioDataModule, self).__init__()
         self.service = service
         self.audio_dataset_class = audio_dataset_class
         self.data_dir = data_dir
