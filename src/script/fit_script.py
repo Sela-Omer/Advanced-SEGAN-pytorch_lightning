@@ -49,7 +49,7 @@ class FitScript(ABC, Callable):
         """
 
         checkpoint_callback_lst = []
-        for metric_name in self.service.config['FIT']['CHECKPOINT_CALLBACKS'].split(','):
+        for metric_name in self.service.config['FIT']['CHECKPOINT_MONITOR'].split(','):
             # Create the model checkpoint callback
             checkpoint_callback_lst.append(ModelCheckpoint(
                 monitor=metric_name,  # Metric to monitor
