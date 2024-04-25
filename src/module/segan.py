@@ -41,7 +41,7 @@ class SEGAN(pl.LightningModule):
             lambda_l1 (int): The lambda value for the L1 loss.
 
         """
-        super().__init__()
+        super(SEGAN, self).__init__()
         self.sample_rate = sample_rate
         self.example_input_array = example_input_array
 
@@ -391,16 +391,16 @@ class SEGAN(pl.LightningModule):
         composite_metrics_dict = self._calc_generator_composite_metrics(intermediate_step)
 
         # Log the generator loss
-        self.log('valid_g_loss', generator_loss_dict['g_loss'])
-        self.log('valid_g_l1_loss', generator_loss_dict['g_l1_loss'])
-        self.log('valid_g_total_loss', generator_loss_dict['g_total_loss'], prog_bar=True)
+        self.log('valid_g_loss', generator_loss_dict['g_loss'], sync_dist=True)
+        self.log('valid_g_l1_loss', generator_loss_dict['g_l1_loss'], sync_dist=True)
+        self.log('valid_g_total_loss', generator_loss_dict['g_total_loss'], prog_bar=True, sync_dist=True)
 
         if composite_metrics_dict is not None:
-            self.log('valid_PESQ', composite_metrics_dict['PESQ'], prog_bar=True)
-            self.log('valid_CSIG', composite_metrics_dict['CSIG'], prog_bar=True)
-            self.log('valid_CBAK', composite_metrics_dict['CBAK'], prog_bar=True)
-            self.log('valid_COVL', composite_metrics_dict['COVL'], prog_bar=True)
-            self.log('valid_SSNR', composite_metrics_dict['SSNR'], prog_bar=True)
+            self.log('valid_PESQ', composite_metrics_dict['PESQ'], prog_bar=True, sync_dist=True)
+            self.log('valid_CSIG', composite_metrics_dict['CSIG'], prog_bar=True, sync_dist=True)
+            self.log('valid_CBAK', composite_metrics_dict['CBAK'], prog_bar=True, sync_dist=True)
+            self.log('valid_COVL', composite_metrics_dict['COVL'], prog_bar=True, sync_dist=True)
+            self.log('valid_SSNR', composite_metrics_dict['SSNR'], prog_bar=True, sync_dist=True)
 
         #########################
         # Discriminator Metrics #
@@ -410,11 +410,12 @@ class SEGAN(pl.LightningModule):
         discriminator_loss_dict = self._calc_discriminator_loss(intermediate_step, valid, fake)
 
         # Log the discriminator loss
-        self.log('valid_d_real_loss', discriminator_loss_dict['d_real_loss'])
-        self.log('valid_d_fake_loss', discriminator_loss_dict['d_fake_loss'])
-        self.log('valid_d_loss', discriminator_loss_dict['d_total_loss'], prog_bar=True)
+        self.log('valid_d_real_loss', discriminator_loss_dict['d_real_loss'], sync_dist=True)
+        self.log('valid_d_fake_loss', discriminator_loss_dict['d_fake_loss'], sync_dist=True)
+        self.log('valid_d_loss', discriminator_loss_dict['d_total_loss'], prog_bar=True, sync_dist=True)
 
-        self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'])
+        self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'],
+                 sync_dist=True)
 
     def configure_optimizers(self):
         """

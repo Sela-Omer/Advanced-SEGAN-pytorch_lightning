@@ -16,7 +16,7 @@ class ServiceFit(Service):
     """
 
     def __init__(self, config):
-        super().__init__(config)
+        super(ServiceFit, self).__init__(config)
 
         torch.set_float32_matmul_precision(config['FIT']['TORCH_PRECISION'])
 

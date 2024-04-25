@@ -23,7 +23,7 @@ class SEGAN_Generator(nn.Module):
         Args:
             encoder_dimensions (List[int], optional): The dimensions of the encoder layers. Defaults to [1, 16, 32, 32, 64, 64, 128, 128, 256, 256, 512, 1024].
         """
-        super().__init__()
+        super(SEGAN_Generator, self).__init__()
         self.encoder_dimensions = encoder_dimensions
         self.num_layers = len(encoder_dimensions) - 1
 
