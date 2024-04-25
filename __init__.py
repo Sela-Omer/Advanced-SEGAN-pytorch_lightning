@@ -2,6 +2,7 @@ import argparse
 
 from src.config import config
 from src.service.service_fit import ServiceFit
+import torch
 
 
 def parse_arguments(config):
@@ -59,6 +60,10 @@ def override_config(config, args):
 
 
 if __name__ == "__main__":
+    print('listing available cuda devices:', torch.cuda.device_count())
+    for i in range(torch.cuda.device_count()):
+        print(torch.cuda.get_device_properties(i).name)
+
     args = parse_arguments(config)
     override_config(config, args)
 
