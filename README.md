@@ -185,10 +185,8 @@ This project is based on the original SEGAN (Speech Enhancement Generative Adver
 
 - Pascual, S., Bonafonte, A., & Serra, J. (2017). SEGAN: Speech Enhancement Generative Adversarial Network. Retrieved from [arXiv:1703.09452](https://arxiv.org/abs/1703.09452).
 
-This implementation of the SEGAN project incorporates various metrics and methods adapted from the `pysepm` library, which is a Python implementation of speech quality evaluation metrics. These metrics are essential for evaluating the performance of the speech enhancement model.
-
-The specific functions and methodologies were adapted to fit the architectural and functional requirements of this project, ensuring that the SEGAN model performs optimally under diverse conditions.
-
+This implementation of the SEGAN project incorporates various metrics and methods adapted from the `pysepm` library, which is a Python implementation of speech quality evaluation metrics. These metrics are essential for evaluating the performance of the speech enhancement model.\
+The specific functions and methodologies were adapted to fit the architectural and functional requirements of this project, ensuring that the SEGAN model performs optimally under diverse conditions.\
 For more detailed information on the metrics used and their implementation, please refer to the `pysepm` repository:
 
 - [pysepm on GitHub](https://github.com/schmiph2/pysepm)
