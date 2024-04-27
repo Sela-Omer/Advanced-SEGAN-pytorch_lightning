@@ -29,6 +29,30 @@ Ensure you have the following prerequisites installed on your system before proc
     pip install -r requirements.txt
     ```
 
+## Usage
+To start the project, you can execute the `__init__.py` file directly from the command line:
+
+```bash
+python __init__.py
+```
+
+### Training
+
+To train the model execute it with the APP_mode config option set to FIT.
+
+### Evaluation
+
+To evaluate the model execute it with the APP_mode config option set to EVAL.
+
+### Configuration
+
+The `config.ini` parameters can be dynamically overridden at runtime by passing them as command line arguments to the `__init__.py` file. This allows for flexible adjustments of parameters without permanently changing the configuration file.\
+Example Command to Override Settings:
+```bash
+python __init__.py --APP_mode FIT --APP_arch SEGAN
+```
+
+
 ## Project Structure
 
 This section provides a comprehensive overview of each directory and file within the `src` directory, explaining their purpose and functionality in detail.
