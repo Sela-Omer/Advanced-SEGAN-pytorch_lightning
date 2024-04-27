@@ -18,8 +18,8 @@ Ensure you have the following prerequisites installed on your system before proc
 1. **Clone the Repository**: First, clone this repository to your local machine using Git:
 
    ```bash
-   git clone git@github.com:Spittoon/SEGAN-pytorch.git
-   cd segan
+   git clone git@github.com:Sela-Omer/SEGAN-pytorch_lightning.git
+   cd SEGAN-pytorch_lightning
    ```
 
 2. **Install Dependencies**: Install all the required packages using pip:
