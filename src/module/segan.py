@@ -1,7 +1,10 @@
+from typing import Any
+
 import lightning as pl
 import numpy as np
 import torch
 import torch.optim as optim
+from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torch import nn
 
 from src.helper.metrics_helper import composite_metrics
@@ -372,11 +375,10 @@ class SEGAN(pl.LightningModule):
     def validation_step(self, batch):
         """
         Perform a validation step.
+        This function performs a validation step for the SEGAN model. It first computes the intermediate step by calling the `_compute_intermediate_step` method. Then, it gets the targets for real and fake examples by calling the `_get_targets_for_real_and_fake_examples` method.
 
         Args:
             batch (tuple): A tuple containing the noisy and clean audio samples.
-
-        This function performs a validation step for the SEGAN model. It first computes the intermediate step by calling the `_compute_intermediate_step` method. Then, it gets the targets for real and fake examples by calling the `_get_targets_for_real_and_fake_examples` method.
 
         After that, it calculates the generator loss by calling the `_calc_generator_loss` method and logs the generator loss. Similarly, it calculates the discriminator loss by calling the `_calc_discriminator_loss` method and logs the discriminator loss.
         """
@@ -416,6 +418,56 @@ class SEGAN(pl.LightningModule):
         self.log('valid_d_real_loss', discriminator_loss_dict['d_real_loss'], sync_dist=True)
         self.log('valid_d_fake_loss', discriminator_loss_dict['d_fake_loss'], sync_dist=True)
         self.log('valid_d_loss', discriminator_loss_dict['d_total_loss'], prog_bar=True, sync_dist=True)
+
+        self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'],
+                 sync_dist=True)
+
+    def test_step(self, batch):
+        """
+        Perform a test step.
+
+        Args:
+            batch (tuple): A tuple containing the input and target data.
+
+        Returns:
+            None
+        """
+        # Compute the intermediate step
+        intermediate_step = self._compute_intermediate_step(batch, log_prefix=None)
+
+        # Get the targets for real and fake examples
+        valid, fake = self._get_targets_for_real_and_fake_examples(intermediate_step['batch_size'])
+
+        #####################
+        # Generator Metrics #
+        #####################
+        # Calculate the generator loss
+        generator_loss_dict = self._calc_generator_loss(intermediate_step, valid)
+        composite_metrics_dict = self._calc_generator_composite_metrics(intermediate_step)
+
+        # Log the generator loss
+        self.log('test_g_loss', generator_loss_dict['g_loss'], sync_dist=True)
+        self.log('test_g_l1_loss', generator_loss_dict['g_l1_loss'], sync_dist=True)
+        self.log('test_g_total_loss', generator_loss_dict['g_total_loss'], prog_bar=True, sync_dist=True)
+
+        if composite_metrics_dict is not None:
+            self.log('test_PESQ', composite_metrics_dict['PESQ'], prog_bar=True, sync_dist=True)
+            self.log('test_CSIG', composite_metrics_dict['CSIG'], prog_bar=True, sync_dist=True)
+            self.log('test_CBAK', composite_metrics_dict['CBAK'], prog_bar=True, sync_dist=True)
+            self.log('test_COVL', composite_metrics_dict['COVL'], prog_bar=True, sync_dist=True)
+            self.log('test_SSNR', composite_metrics_dict['SSNR'], prog_bar=True, sync_dist=True)
+
+        #########################
+        # Discriminator Metrics #
+        #########################
+
+        # Calculate the discriminator loss
+        discriminator_loss_dict = self._calc_discriminator_loss(intermediate_step, valid, fake)
+
+        # Log the discriminator loss
+        self.log('test_d_real_loss', discriminator_loss_dict['d_real_loss'], sync_dist=True)
+        self.log('test_d_fake_loss', discriminator_loss_dict['d_fake_loss'], sync_dist=True)
+        self.log('test_d_loss', discriminator_loss_dict['d_total_loss'], prog_bar=True, sync_dist=True)
 
         self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'],
                  sync_dist=True)

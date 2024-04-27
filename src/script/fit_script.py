@@ -1,44 +1,19 @@
-from abc import ABC, abstractmethod
-from typing import Callable
+from abc import ABC
 
 import lightning as pl
 from lightning.pytorch.callbacks import ModelCheckpoint, TQDMProgressBar, DeviceStatsMonitor
 from lightning.pytorch.loggers import TensorBoardLogger
 
-from src.service.service import Service
+from src.script.script import Script
 
 
-class FitScript(ABC, Callable):
+class FitScript(Script, ABC):
     """
     Class for setting up the training script for a given service.
 
     Attributes:
         service (ServiceFit): An instance of the ServiceFit class.
     """
-
-    def __init__(self, service: Service):
-        """
-        Initializes the Fit_Script class with a given service.
-
-        Parameters:
-            service (ServiceFit): An instance of the ServiceFit class.
-        """
-        # Assign the provided service to the instance variable
-        self.service = service
-
-    @abstractmethod
-    def create_datamodule(self):
-        """
-        Create the data module for the training script.
-
-        This method is an abstract method that should be implemented by subclasses. It is responsible for creating and returning
-        the data module that will be used for training. The data module should be an instance of a class that inherits from
-        `pl.LightningDataModule`.
-
-        Returns:
-            pl.LightningDataModule: The data module for the training script.
-        """
-        pass
 
     def create_callbacks(self):
         """
@@ -67,21 +42,6 @@ class FitScript(ABC, Callable):
         # Create the list of callbacks
         return checkpoint_callback_lst + [progress_bar_callback, device_stats_callback]
 
-    @abstractmethod
-    def create_architecture(self, datamodule: pl.LightningDataModule):
-        """
-        Creates the architecture for the model.
-
-        This is an abstract method that should be implemented by subclasses. It is responsible for creating and returning the architecture of the model. The architecture is defined by the specific subclass and should be based on the provided `datamodule` which contains the data used for training.
-
-        Parameters:
-            datamodule (pl.LightningDataModule): The data module containing the data used for training.
-
-        Returns:
-            pl.LightningModule: The architecture of the model.
-        """
-        pass
-
     def create_trainer(self, callbacks: list):
         """
         Create a trainer with specified configurations.
@@ -95,15 +55,15 @@ class FitScript(ABC, Callable):
         # Create the trainer with specified configurations
         trainer = pl.Trainer(
             max_epochs=int(self.service.config['FIT']['N_EPOCHS']),
-            accelerator=self.service.config['FIT']['ACCELERATOR'],
+            accelerator=self.service.config['APP']['ACCELERATOR'],
             log_every_n_steps=int(self.service.config['FIT']['LOG_EVERY_N_STEPS']),
             callbacks=callbacks,
-            logger=TensorBoardLogger(save_dir=self.service.config['FIT']['MODEL_STORE_PATH'],
+            logger=TensorBoardLogger(save_dir=self.service.config['APP']['MODEL_STORE_PATH'],
                                      name=self.service.model_name,
                                      log_graph=bool(self.service.config['FIT']['LOG_GRAPH'])),
-            devices=int(self.service.config['FIT']['DEVICES']),
-            num_nodes=int(self.service.config['FIT']['NUM_NODES']),
-            strategy=self.service.config['FIT']['STRATEGY'],
+            devices=int(self.service.config['APP']['DEVICES']),
+            num_nodes=int(self.service.config['APP']['NUM_NODES']),
+            strategy=self.service.config['APP']['STRATEGY'],
         )
         return trainer
 

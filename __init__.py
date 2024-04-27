@@ -1,6 +1,7 @@
 import argparse
 
 from src.config import config
+from src.service.service_eval import ServiceEval
 from src.service.service_fit import ServiceFit
 import torch
 
@@ -72,7 +73,7 @@ if __name__ == "__main__":
 
     service_dict = {
         "FIT": ServiceFit,
-        "EVAL": None,
+        "EVAL": ServiceEval,
     }
     service = service_dict[app_mode](config)
 
