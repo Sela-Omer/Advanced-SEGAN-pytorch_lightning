@@ -1,4 +1,4 @@
-# SEGAN: Speech Enhancement Generative Adversarial Network Pytorch Lightning Implementation
+# SEGAN: Speech Enhancement Generative Adversarial Network - Pytorch Lightning Implementation
 
 ## Overview
 
@@ -12,7 +12,6 @@ Ensure you have the following prerequisites installed on your system before proc
 
 - Python 3.10 or higher
 - pip (Python package installer)
-- Virtualenv (optional, recommended for environment management)
 
 ### Setup Instructions
 
@@ -51,6 +50,45 @@ Example Command to Override Settings:
 ```bash
 python __init__.py --APP_mode FIT --APP_arch SEGAN
 ```
+
+## Project Execution Flow
+
+This section outlines the systematic flow of operations from initialization to training or evaluation of the SEGAN model.
+
+### 1. Initialization (`__init__.py`)
+
+- The project starts in the `__init__.py` file located in the main project directory. This script serves as the entry point and is responsible for setting up the initial environment and configurations.
+- It parses command line arguments which can override the default settings specified in `config.ini`, allowing dynamic adjustments of parameters such as batch size and environment mode.
+
+### 2. Service Layer (`src/service`)
+
+- After initialization, control is passed to the service layer, where specific services are defined to handle different aspects of the application:
+  - **service.py**: Abstract base class defining essential service functionalities.
+  - **service_fit.py**: Inherits from `service.py`, setting up everything needed for the training process.
+  - **service_eval.py**: Also inherits from `service.py`, tailored for handling the evaluation process.
+
+### 3. Script Execution (`src/script`)
+
+- Scripts in the `src/script` directory utilize the services to perform specific tasks:
+  - **segan_fit_script.py**: Uses `service_fit.py` to configure and start the training of the SEGAN model.
+  - **segan_eval_script.py**: Uses `service_eval.py` for evaluating the model's performance on a test dataset.
+- These scripts are directly executable and provide the interface for interacting with the model training or evaluation phases.
+
+### 4. Model Setup (`src/module`)
+
+- Within the model setup:
+  - **segan.py**: Central module integrating the generator and discriminator components of the SEGAN model.
+  - **segan_generator.py** and **segan_discriminator.py**: Define the architecture of the generator and discriminator, respectively.
+- The model files are imported and utilized by the service scripts to instantiate the SEGAN model, set up loss functions, optimizers, and other training or evaluation components.
+
+### 5. Training/Evaluation
+
+- **Training (Train Mode)**:
+  - If the project is run in train mode (`MODE=FIT`), `segan_fit_script.py` orchestrates the entire training cycle, managing data loading, model training iterations, and saving checkpoints.
+- **Evaluation (Eval Mode)**:
+  - If the project is run in eval mode (`MODE=EVAL`), `segan_eval_script.py` handles the loading of a pre-trained model and performs evaluations on new data to gauge the model's performance.
+
+This flow ensures that each component of the SEGAN project is optimally utilized to achieve the best results in enhancing speech audio quality through noise reduction and clarity improvement.
 
 
 ## Project Structure
