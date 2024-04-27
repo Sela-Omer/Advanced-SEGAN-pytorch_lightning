@@ -178,3 +178,9 @@ The `config.ini` file contains several sections that define the settings and par
 
 ### [EVAL]
 - **CHECKPOINT_PATH**: Specifies the path to the checkpoint file used for model evaluation. This setting is crucial for resuming training or for performing evaluation using a pre-trained model. Currently set to 'model/SEGAN/version_4/checkpoints/SEGAN-epoch=02-valid_CBAK=1.33.ckpt'.
+
+## References and Acknowledgments
+
+This project is based on the original SEGAN (Speech Enhancement Generative Adversarial Network) paper. The paper can be accessed through the following link:
+
+- Pascual, S., Bonafonte, A., & Serra, J. (2017). SEGAN: Speech Enhancement Generative Adversarial Network. Retrieved from [arXiv:1703.09452](https://arxiv.org/abs/1703.09452).
