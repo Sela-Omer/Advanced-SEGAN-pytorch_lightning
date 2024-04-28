@@ -64,6 +64,7 @@ class FitScript(Script, ABC):
             devices=int(self.service.config['APP']['DEVICES']),
             num_nodes=int(self.service.config['APP']['NUM_NODES']),
             strategy=self.service.config['APP']['STRATEGY'],
+            precision=int(self.service.config['FIT']['TRAINER_PRECISION']),
         )
         return trainer
 
