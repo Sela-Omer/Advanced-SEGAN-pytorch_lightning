@@ -13,6 +13,11 @@ class Service(ABC):
         self.cpu_workers = int(self.config['APP']['CPU_WORKERS'])
         self.dataset_size_percent = float(self.config['APP']['DATA_SUBSET_SIZE_PERCENT'])
 
+        self.noisy_mean = float(self.config['DATA']['NOISY_MEAN'])
+        self.noisy_std = float(self.config['DATA']['NOISY_STD'])
+        self.clean_mean = float(self.config['DATA']['CLEAN_MEAN'])
+        self.clean_std = float(self.config['DATA']['CLEAN_STD'])
+
     @property
     @abstractmethod
     def scripts(self) -> Dict[str, Callable]:

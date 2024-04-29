@@ -3,6 +3,7 @@ from typing import Callable, Dict
 import torch
 
 from src.helper.param_helper import convert_param_to_type
+from src.script.improved_segan_fit_script import Improved_SEGAN_FitScript
 from src.script.segan_fit_script import SEGAN_FitScript
 from src.service.service import Service
 
@@ -53,7 +54,8 @@ class ServiceFit(Service):
         """
         # Create a dictionary with the ARCH name and its corresponding instance
         script_dict = {
-            'SEGAN': SEGAN_FitScript(self)  # Instantiate the SEGAN_Fit class
+            'SEGAN': SEGAN_FitScript(self),  # Instantiate the SEGAN_Fit class
+            'IMPROVED_SEGAN': Improved_SEGAN_FitScript(self)
         }
 
         return script_dict

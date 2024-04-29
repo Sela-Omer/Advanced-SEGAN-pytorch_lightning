@@ -5,6 +5,8 @@ from src.service.service_eval import ServiceEval
 from src.service.service_fit import ServiceFit
 import torch
 
+from src.service.service_stats import ServiceStats
+
 
 def parse_arguments(config):
     """
@@ -61,10 +63,6 @@ def override_config(config, args):
 
 
 if __name__ == "__main__":
-    print('listing available cuda devices:', torch.cuda.device_count())
-    for i in range(torch.cuda.device_count()):
-        print(torch.cuda.get_device_properties(i).name)
-
     args = parse_arguments(config)
     override_config(config, args)
 
@@ -74,6 +72,7 @@ if __name__ == "__main__":
     service_dict = {
         "FIT": ServiceFit,
         "EVAL": ServiceEval,
+        "STATS": ServiceStats,
     }
     service = service_dict[app_mode](config)
 

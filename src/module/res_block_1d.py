@@ -48,7 +48,7 @@ class ResBlock1d(nn.Module):
         self.conv1 = nn.Conv1d(inplanes, planes, kernel_size=kernel_size, stride=stride,
                                padding=padding)  # Convolutional layer
         self.bn1 = norm_layer(planes)  # Normalization layer
-        self.relu = nn.ReLU(inplace=True)  # ReLU activation function
+        self.relu = nn.ReLU()  # ReLU activation function
 
         if prev_layer_inplanes is not None:
             self.downsample = nn.Conv1d(prev_layer_inplanes, planes, kernel_size=kernel_size, stride=stride*2,
@@ -71,6 +71,6 @@ class ResBlock1d(nn.Module):
 
         if hasattr(self, 'downsample'):
             prev_layer_input = self.downsample(prev_layer_input)  # Downsampling
-            out += prev_layer_input  # Residual connection
+            out = out + prev_layer_input  # Residual connection
 
         return out

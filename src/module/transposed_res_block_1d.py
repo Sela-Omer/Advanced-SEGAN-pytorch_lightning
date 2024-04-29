@@ -42,13 +42,14 @@ class TransposedResBlock1d(nn.Module):
         # Define the normalization layer
         self.bn1 = norm_layer(planes)
         # Define the ReLU activation function
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU()
 
         # If there is a previous layer, define a downsampling path
         if prev_layer_inplanes is not None:
-            self.downsample = nn.ConvTranspose1d(inplanes, planes, kernel_size=kernel_size, stride=stride,
+            self.downsample = nn.ConvTranspose1d(prev_layer_inplanes, planes, kernel_size=kernel_size, stride=stride*2,
                                                  padding=padding, dilation=dilation,
-                                                 output_padding=output_padding * 2)
+                                                 output_padding=output_padding + 2)
+            # nn.ConvTranspose1d(2048, 256, kernel_size=31, stride=4, padding=15, dilation=1, output_padding=3)
 
     def forward(self, x: Tensor, prev_layer_input: Optional[Tensor] = None) -> Tensor:
         """
@@ -77,6 +78,6 @@ class TransposedResBlock1d(nn.Module):
             # Downsample the previous layer's output
             prev_layer_input = self.downsample(prev_layer_input)
             # Add the downsampled output to the current output
-            out += prev_layer_input
+            out = out + prev_layer_input
 
         return out
