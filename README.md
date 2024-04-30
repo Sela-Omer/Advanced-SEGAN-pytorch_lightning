@@ -2,7 +2,7 @@
 
 ## Overview
 
-SEGAN (Speech Enhancement Generative Adversarial Network) is a state-of-the-art deep learning model designed to enhance the quality of speech audio signals by reducing background noise and improving clarity. This implementation leverages the Pytorch Lightning framework to facilitate scalable and efficient training, making it suitable for both research and production environments. The project is structured to be modular and customizable, allowing for easy experimentation and adaptation to different audio processing needs.
+Advanced SEGAN builds upon the original SEGAN (Speech Enhancement Generative Adversarial Network) model, introducing significant improvements in architecture and training processes. This enhanced version leverages Pytorch Lightning to facilitate scalable and efficient training, suitable for both research and practical applications. The modifications are aimed at improving the clarity and quality of speech audio signals by reducing background noise more effectively than the original model.
 
 ## Installation
 
@@ -18,7 +18,7 @@ Ensure you have the following prerequisites installed on your system before proc
 1. **Clone the Repository**: First, clone this repository to your local machine using Git:
 
    ```bash
-   git clone git@github.com:Sela-Omer/SEGAN-pytorch_lightning.git
+   git clone git@github.com:Sela-Omer/Advanced-SEGAN-pytorch_lightning.git
    cd SEGAN-pytorch_lightning
    ```
 
@@ -53,131 +53,128 @@ python __init__.py --APP_mode FIT --APP_arch SEGAN
 
 ## Project Execution Flow
 
-This section outlines the systematic flow of operations from initialization to training or evaluation of the SEGAN model.
+The execution flow of the Advanced SEGAN project is designed for streamlined operation from initialization through training or evaluation:
 
 ### 1. Initialization (`__init__.py`)
-
-- The project starts in the `__init__.py` file located in the main project directory. This script serves as the entry point and is responsible for setting up the initial environment and configurations.
-- It parses command line arguments which can override the default settings specified in `config.ini`, allowing dynamic adjustments of parameters such as batch size and environment mode.
+This step initializes the project, setting up the environment and configurations based on `config.ini` or command line arguments.
 
 ### 2. Service Layer (`src/service`)
-
-- After initialization, control is passed to the service layer, where specific services are defined to handle different aspects of the application:
-  - **service.py**: Abstract base class defining essential service functionalities.
-  - **service_fit.py**: Inherits from `service.py`, setting up everything needed for the training process.
-  - **service_eval.py**: Also inherits from `service.py`, tailored for handling the evaluation process.
+This layer manages functionalities for different operational modes:
+- **service_fit.py**: Configures the training process.
+- **service_eval.py**: Manages the evaluation process.
 
 ### 3. Script Execution (`src/script`)
-
-- Scripts in the `src/script` directory utilize the services to perform specific tasks:
-  - **segan_fit_script.py**: Uses `service_fit.py` to configure and start the training of the SEGAN model.
-  - **segan_eval_script.py**: Uses `service_eval.py` for evaluating the model's performance on a test dataset.
-- These scripts are directly executable and provide the interface for interacting with the model training or evaluation phases.
+Scripts execute specific tasks using the services defined:
+- **adv_segan_script.py**: Executes advanced model operations, enhancing both standard and new functionalities.
+- **segan_fit_script.py**: Directs traditional training operations.
+- **segan_eval_script.py**: Manages the traditional model evaluation.
 
 ### 4. Model Setup (`src/module`)
-
-- Within the model setup:
-  - **segan.py**: Central module integrating the generator and discriminator components of the SEGAN model.
-  - **segan_generator.py** and **segan_discriminator.py**: Define the architecture of the generator and discriminator, respectively.
-- The model files are imported and utilized by the service scripts to instantiate the SEGAN model, set up loss functions, optimizers, and other training or evaluation components.
+Incorporates all model components:
+- **adv_segan.py**: Advanced SEGAN model integration.
+- **segan.py**: Basic SEGAN model integration.
+- **segan_generator.py** and **segan_discriminator.py**: Define the architectures of the generator and discriminator.
 
 ### 5. Training/Evaluation
+- **Training**: Managed under `FIT` mode, directing data handling, model training, and saving state via advanced scripts.
+- **Evaluation**: Conducted under `EVAL` mode, assessing model performance on test datasets.
 
-- **Training (Train Mode)**:
-  - If the project is run in train mode (`MODE=FIT`), `segan_fit_script.py` orchestrates the entire training cycle, managing data loading, model training iterations, and saving checkpoints.
-- **Evaluation (Eval Mode)**:
-  - If the project is run in eval mode (`MODE=EVAL`), `segan_eval_script.py` handles the loading of a pre-trained model and performs evaluations on new data to gauge the model's performance.
-
-This flow ensures that each component of the SEGAN project is optimally utilized to achieve the best results in enhancing speech audio quality through noise reduction and clarity improvement.
+This structured approach ensures efficient resource use and optimal component functioning for superior speech enhancement outcomes.
 
 
 ## Project Structure
 
-This section provides a comprehensive overview of each directory and file within the `src` directory, explaining their purpose and functionality in detail.
+This section details the organization of the Advanced SEGAN project, explaining the functionality and purpose of each component within the directory structure:
 
-### src/config
 
-- **config.ini**: Central configuration file containing settings for model parameters, training environment, and operational modes.
-- **config.py**: Script that parses `config.ini` and exposes these settings as Python variables throughout the project.
+#### `src/config`
+- **config.ini**: Central configuration file with editable settings for model operations.
+- **config.py**: Parses and provides access to settings in `config.ini`.
 
-### src/datamodule
+#### `src/datamodule`
+- **audio_data_module.py**: Manages audio data handling for the model.
 
-- **audio_data_module.py**: Manages the setup, loading, and preprocessing of audio datasets for training, validation, and testing phases using PyTorch Lightning.
+#### `src/dataset`
+- **audio_dataset.py**: Basic audio data handling class.
+- **iter_audio_dataset.py**: Iterable dataset for large-scale audio data processing.
+- **map_audio_dataset.py**: Map-style dataset class for efficient data access.
 
-### src/dataset
+#### `src/display`
+- **display_waveform.py**: Tools for visualizing audio data.
 
-- **audio_dataset.py**: Basic class for handling audio files, supports reading and preprocessing of data.
-- **iter_audio_dataset.py**: Iterable dataset class for streaming large audio datasets efficiently.
-- **map_audio_dataset.py**: Map-style dataset class providing flexible data access.
+#### `src/helper`
+- **audio_helper.py**: Utility functions for audio processing.
+- **metrics_helper.py**: Functions for computing performance metrics.
+- **param_helper.py**: Helper class for managing model parameters.
 
-### src/display
+#### `src/immutable`
+- **data_index.py**: Defines constant indices used across datasets.
+- **progress_bar.py**: Customizable progress bar for tracking model training and evaluations.
+- **xy_data_index_pair.py**: Manages pairs of indices for complex data relationships.
 
-- **display_waveform.py**: Contains functions for plotting audio waveforms, aiding in the visual analysis of audio signals.
+#### `src/module`
+- **adv_segan.py**: Advanced SEGAN model implementation.
+- **res_block_1d.py**: Implementation of 1D residual blocks.
+- **segan.py**: Standard SEGAN model implementation.
+- **segan_discriminator.py**: Discriminator part of the SEGAN model.
+- **segan_generator.py**: Generator part of the SEGAN model.
+- **segan_residual_generator_bn.py**: SEGAN generator with residual blocks and batch normalization.
+- **transposed_res_block_1d.py**: Transposed 1D residual blocks for the model.
+- **virtual_batch_norm.py**: Implements virtual batch normalization technique.
 
-### src/helper
+#### `src/script`
+- **adv_segan_eval_script.py**: Script for evaluating the Advanced SEGAN model.
+- **adv_segan_fit_script.py**: Script for training the Advanced SEGAN model.
+- **adv_segan_script.py**: General script for running the Advanced SEGAN model operations.
+- **eval_script.py**: General evaluation script for models.
+- **fit_script.py**: General training script for models.
+- **script.py**: Template for basic script operations.
+- **segan_eval_script.py**: SEGAN-specific evaluation script.
+- **segan_fit_script.py**: SEGAN-specific training script.
+- **segan_script.py**: Script for general SEGAN model operations.
+- **stats_script.py**: Script for generating statistical data from model operations.
 
-- **audio_helper.py**: Utility functions for audio data manipulation.
-- **metrics_helper.py**: Functions for calculating and managing performance metrics.
-- **param_helper.py**: Helper for parameter management and retrieval.
-
-### src/immutable
-
-- **data_index.py**: Defines immutable data indices for dataset handling.
-- **progress_bar.py**: Custom progress bar for displaying training and processing progress.
-- **xy_data_index_pair.py**: Defines pairs of data indices for handling complex data mappings.
-
-### src/module
-
-- **segan.py**: Main module for the SEGAN model, integrating components like generator and discriminator.
-- **segan_discriminator.py**: Defines the discriminator part of the SEGAN model.
-- **segan_generator.py**: Defines the generator part of the SEGAN model.
-- **virtual_batch_norm.py**: Implements virtual batch normalization used in the SEGAN model.
-
-### src/script
-
-- **eval_script.py**: Script for conducting model evaluations.
-- **fit_script.py**: Script for running model training sessions.
-- **script.py**: Template for basic script setup.
-- **segan_eval_script.py**: SEGAN-specific script for model evaluation.
-- **segan_fit_script.py**: SEGAN-specific script for model training.
-- **segan_script.py**: General script for SEGAN model operations.
-
-### src/service
-
-- **service.py**: Abstract base class for defining core service functionalities.
-- **service_eval.py**: Extends `service.py`, tailored for evaluation processes.
-- **service_fit.py**: Extends `service.py`, tailored for training processes.
+#### `src/service`
+- **service.py**: Base class for defining service operations.
+- **service_eval.py**: Service class for handling model evaluations.
+- **service_fit.py**: Service class for managing training operations.
+- **service_stats.py**: Service class for statistical analysis of model performance.
 
 ## Configuration Settings
 
-The `config.ini` file contains several sections that define the settings and parameters for various aspects of the SEGAN project. Here's a detailed breakdown of each section and its options:
+The `config.ini` file contains various sections that define the settings and parameters for different aspects of the SEGAN project. Here's a breakdown of each section and its options:
 
 ### [APP]
-- **ENVIRONMENT**: Defines the operational environment. Options include DEVELOPMENT and PRODUCTION. Development mode might enable additional logging or debugging features that are not available in production.
-- **MODE**: Specifies the operational mode of the model. Options include FIT for training and EVAL for evaluation.
-- **ARCH**: Specifies the model architecture. For this project, it is set to SEGAN.
-- **BATCH_SIZE**: Determines the number of samples processed before the model's internal parameters are updated. Currently set to 400.
-- **DATA_SUBSET_SIZE_PERCENT**: Specifies the percentage of the dataset to be used during training or evaluation. Set to 1.0, meaning the entire dataset is used.
-- **CPU_WORKERS**: Number of CPU workers used for loading data. Set to 11 to optimize data loading operations.
-- **ACCELERATOR**: Specifies the hardware accelerator to use. Set to 'auto' to automatically choose the best available option, typically GPU if available.
-- **MODEL_STORE_PATH**: The directory path where trained models are stored. Set to 'model'.
-- **DEVICES**: Number of devices to use for training. Set to 1.
-- **NUM_NODES**: Number of nodes for distributed training. Set to 1.
-- **STRATEGY**: Training strategy to manage distributed or single device training. Set to 'auto'.
+- **ENVIRONMENT**: Specifies the operational environment for the model.
+- **MODE**: Determines the mode of operation such as training or evaluation.
+- **ARCH**: Defines the architecture of the model.
+- **BATCH_SIZE**: Sets the number of samples processed in one batch.
+- **DATA_SUBSET_SIZE_PERCENT**: Percentage of the dataset used during training or evaluation.
+- **CPU_WORKERS**: Number of CPU workers used for data loading.
+- **ACCELERATOR**: Hardware acceleration options (e.g., GPU).
+- **MODEL_STORE_PATH**: Directory where model checkpoints are saved.
+- **DEVICES**: Number of devices used for training.
+- **NUM_NODES**: Number of nodes for distributed training.
+- **STRATEGY**: Strategy for distributing training across devices.
 
 ### [FIT]
-- **N_EPOCHS**: The number of complete passes through the training dataset. Currently set to 120.
-- **TORCH_PRECISION**: The computational precision setting for PyTorch operations. Options include 'high' for higher precision operations.
-- **LOG_EVERY_N_STEPS**: Specifies how often to log training progress. Set to 1, indicating logging at every training step.
-- **CHECKPOINT_MONITOR**: A list of metrics to monitor for checkpointing during training. Includes various audio quality metrics like PESQ, CSIG, CBAK, COVL, and SSNR.
-- **LOG_GRAPH**: Boolean indicating whether to log the computational graph of the model during training. Set to True.
-- **MODEL_HYPERPARAMS**: Hyperparameters specific to the model components such as generators and discriminators. Learning rates for the generator (lr_gen) and discriminator (lr_disc) are both set to 0.0001.
+- **N_EPOCHS**: Total number of training epochs.
+- **TORCH_PRECISION**: Computational precision for training operations.
+- **LOG_EVERY_N_STEPS**: Frequency of logging training progress.
+- **CHECKPOINT_MONITOR**: Metrics monitored for model checkpointing.
+- **LOG_GRAPH**: Whether to log the model's computational graph.
+- **MODEL_HYPERPARAMS**: Specific hyperparameters for the model.
+- **TRAINER_PRECISION**: Precision setting for the training process.
 
 ### [DATA]
-- **PATH**: Specifies the path to the dataset used for training and validation. This is essential for locating the data files needed for model operations.
+- **PATH**: Directory path where the dataset is stored.
+- **NOISY_MEAN**: Mean value of noisy input data.
+- **NOISY_STD**: Standard deviation of noisy input data.
+- **CLEAN_MEAN**: Mean value of clean target data.
+- **CLEAN_STD**: Standard deviation of clean target data.
 
 ### [EVAL]
-- **CHECKPOINT_PATH**: Specifies the path to the checkpoint file used for model evaluation. This setting is crucial for resuming training or for performing evaluation using a pre-trained model. Currently set to 'model/SEGAN/version_4/checkpoints/SEGAN-epoch=02-valid_CBAK=1.33.ckpt'.
+- **CHECKPOINT_PATH**: Path to the model checkpoint used for evaluation.
 
 ## References and Acknowledgments
 
