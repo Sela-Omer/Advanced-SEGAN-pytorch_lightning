@@ -1,4 +1,4 @@
-# SEGAN: Speech Enhancement Generative Adversarial Network - Pytorch Lightning Implementation
+# Advanced SEGAN: Speech Enhancement Generative Adversarial Network - Pytorch Lightning Implementation
 
 ## Overview
 
