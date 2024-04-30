@@ -1,5 +1,6 @@
 from typing import Callable, Dict
 
+from src.script.adv_segan_eval_script import Adv_SEGAN_EvalScript
 from src.script.segan_eval_script import SEGAN_EvalScript
 from src.service.service import Service
 
@@ -28,7 +29,8 @@ class ServiceEval(Service):
         """
         # Create a dictionary with the ARCH name and its corresponding instance
         script_dict = {
-            'SEGAN': SEGAN_EvalScript(self)  # Instantiate the SEGAN_Fit class
+            'SEGAN': SEGAN_EvalScript(self),  # Instantiate the SEGAN_Fit class
+            'ADV_SEGAN': Adv_SEGAN_EvalScript(self)
         }
 
         return script_dict

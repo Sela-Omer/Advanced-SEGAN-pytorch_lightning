@@ -12,10 +12,10 @@ from src.module.segan import SEGAN
 from src.service.service import Service
 
 
-class ImprovedSEGAN(SEGAN):
+class AdvSEGAN(SEGAN):
     def __init__(self, *args, noisy_mean=0, noisy_std=1, clean_mean=0, clean_std=1, **kwargs):
         """
-        Initializes the ImprovedSEGAN model with the provided means and standard deviations.
+        Initializes the AdvSEGAN model with the provided means and standard deviations.
 
         Args:
             *args: Variable length argument list.
@@ -26,7 +26,7 @@ class ImprovedSEGAN(SEGAN):
             **kwargs: Arbitrary keyword arguments.
 
         """
-        super(ImprovedSEGAN, self).__init__(*args, **kwargs)
+        super(AdvSEGAN, self).__init__(*args, **kwargs)
         self.noisy_mean = noisy_mean
         self.noisy_std = noisy_std
         self.clean_mean = clean_mean
@@ -101,7 +101,7 @@ class ImprovedSEGAN(SEGAN):
 
     def _compute_intermediate_step(self, batch, log_prefix='train'):
         """
-            Compute intermediate steps for the improved SEGAN model.
+            Compute intermediate steps for the advanced SEGAN model.
             Args:
                 batch (Tuple[torch.Tensor, torch.Tensor]): The input batch containing denormalized noisy and clean audio.
                 log_prefix (str, optional): The prefix for logging. Defaults to 'train'.
