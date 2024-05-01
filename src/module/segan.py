@@ -172,6 +172,30 @@ class SEGAN(pl.LightningModule):
             'generated_clean': generated_clean
         }
 
+    def _intermediate_step_to_raw_pred(self, intermediate_step: dict):
+        """
+        Returns the raw prediction from the given intermediate step.
+
+        Parameters:
+            intermediate_step (dict): A dictionary containing the intermediate step outputs.
+
+        Returns:
+            The raw prediction from the intermediate step.
+        """
+        return intermediate_step["generator_raw_pred"]
+
+    def _intermediate_step_to_noisy(self, intermediate_step: dict):
+        """
+        Returns the noisy input from the given intermediate step.
+
+        Parameters:
+            intermediate_step (dict): A dictionary containing the intermediate step outputs.
+
+        Returns:
+            The noisy input from the intermediate step.
+        """
+        return intermediate_step["noisy"]
+
     def _calc_generator_loss(self, intermediate_step: dict, valid: torch.Tensor) -> dict:
         """
         Calculate the generator loss for the SEGAN model.
@@ -422,7 +446,7 @@ class SEGAN(pl.LightningModule):
         self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'],
                  sync_dist=True)
 
-    def test_step(self, batch):
+    def test_step(self, batch, batch_idx):
         """
         Perform a test step.
 
@@ -471,6 +495,11 @@ class SEGAN(pl.LightningModule):
 
         self.log('val_loss', generator_loss_dict['g_total_loss'] + discriminator_loss_dict['d_total_loss'],
                  sync_dist=True)
+
+        if self.service.config['APP']['ENVIRONMENT'] == 'DEVELOPMENT':
+            self.service.memo[f'batch_{batch_idx}_raw_pred'] = self._intermediate_step_to_raw_pred(intermediate_step)
+            self.service.memo[f'batch_{batch_idx}_noisy'] = self._intermediate_step_to_noisy(intermediate_step)
+
 
     def configure_optimizers(self):
         """

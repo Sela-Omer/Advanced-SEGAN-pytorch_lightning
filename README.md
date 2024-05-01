@@ -1,5 +1,9 @@
 # Advanced SEGAN: Speech Enhancement Generative Adversarial Network - Pytorch Lightning Implementation
 
+## Read Our Article
+
+To gain a comprehensive understanding of the methodologies and enhancements applied in our Advanced SEGAN project, please refer to our detailed Medium article: [Advancing SEGAN: Proposing and Evaluating Architectural Improvements](https://medium.com/path-to-your-article).
+
 ## Overview
 
 Advanced SEGAN builds upon the original SEGAN (Speech Enhancement Generative Adversarial Network) model, introducing significant improvements in architecture and training processes. This enhanced version leverages Pytorch Lightning to facilitate scalable and efficient training, suitable for both research and practical applications. The modifications are aimed at improving the clarity and quality of speech audio signals by reducing background noise more effectively than the original model.

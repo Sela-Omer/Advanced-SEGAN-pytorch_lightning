@@ -18,6 +18,8 @@ class Service(ABC):
         self.clean_mean = float(self.config['DATA']['CLEAN_MEAN'])
         self.clean_std = float(self.config['DATA']['CLEAN_STD'])
 
+        self.memo = {}
+
     @property
     @abstractmethod
     def scripts(self) -> Dict[str, Callable]:

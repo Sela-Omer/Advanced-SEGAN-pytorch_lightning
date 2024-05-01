@@ -5,3 +5,4 @@ model/**
 segan.slurm
 segan.out
 segan.err
+test_output

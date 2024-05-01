@@ -183,6 +183,30 @@ class AdvSEGAN(SEGAN):
             'norm_generated_clean': norm_generated_clean,
         }
 
+    def _intermediate_step_to_raw_pred(self, intermediate_step:dict):
+        """
+        Extracts the "denorm_generator_raw_pred" from the given intermediate step dictionary and returns it.
+
+        Parameters:
+            intermediate_step (dict): A dictionary containing the intermediate step outputs.
+
+        Returns:
+            The value associated with the key "denorm_generator_raw_pred" in the intermediate_step dictionary.
+        """
+        return intermediate_step["denorm_generator_raw_pred"]
+
+    def _intermediate_step_to_noisy(self, intermediate_step:dict):
+        """
+        Extracts the "denorm_noisy" from the given intermediate step dictionary and returns it.
+
+        Parameters:
+            intermediate_step (dict): A dictionary containing the intermediate step outputs.
+
+        Returns:
+            The value associated with the key "denorm_noisy" in the intermediate_step dictionary.
+        """
+        return intermediate_step["denorm_noisy"]
+
     def _calc_generator_loss(self, intermediate_step: dict, valid: torch.Tensor) -> dict:
         """
         Calculate the generator loss for the SEGAN model.
@@ -316,23 +340,11 @@ class AdvSEGAN(SEGAN):
         """
         optimizer_gen = optim.Adam(
             self.generator.parameters(),
-            lr=1e-4
+            lr=self.lr_gen
         )
         optimizer_disc = optim.Adam(
             self.discriminator.parameters(),
-            lr=1e-4
+            lr=self.lr_disc
         )
-
-        # # Create an RMSprop optimizer for the generator
-        # optimizer_gen = optim.RMSprop(
-        #     self.generator.parameters(),
-        #     lr=self.lr_gen
-        # )
-        #
-        # # Create an RMSprop optimizer for the discriminator
-        # optimizer_disc = optim.RMSprop(
-        #     self.discriminator.parameters(),
-        #     lr=self.lr_disc
-        # )
 
         return [optimizer_gen, optimizer_disc]

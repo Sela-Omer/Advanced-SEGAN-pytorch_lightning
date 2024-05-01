@@ -1,6 +1,9 @@
+import os.path
 from abc import ABC
 
 import lightning as pl
+import torch
+import torchaudio
 from lightning.pytorch.callbacks import ModelCheckpoint, TQDMProgressBar, DeviceStatsMonitor
 from lightning.pytorch.loggers import TensorBoardLogger
 
@@ -52,3 +55,19 @@ class EvalScript(Script, ABC):
         # Fit the model using the trainer
         trainer.test(model=arch, datamodule=datamodule, ckpt_path=self.service.config['EVAL']['CHECKPOINT_PATH'],
                      verbose=True)
+
+        if self.service.config['APP']['ENVIRONMENT'] == 'DEVELOPMENT':
+            raw_pred_lst, noisy_lst = [], []
+            i = 0
+            while f'batch_{i}_raw_pred' in self.service.memo and f'batch_{i}_noisy' in self.service.memo:
+                raw_pred_lst.append(self.service.memo.pop(f'batch_{i}_raw_pred'))
+                noisy_lst.append(self.service.memo.pop(f'batch_{i}_noisy'))
+                i += 1
+
+            raw_pred = torch.cat(raw_pred_lst, dim=0)
+            noisy = torch.cat(noisy_lst, dim=0)
+            save_dir = self.service.config['EVAL']['TEST_OUTPUT_PATH']
+            if not os.path.isdir(save_dir):
+                os.makedirs(save_dir)
+            torchaudio.save(os.path.join(save_dir, 'raw_pred.wav'), raw_pred.reshape(-1)[None].detach().cpu().float(), 16000)
+            torchaudio.save(os.path.join(save_dir, 'noisy.wav'), noisy.reshape(-1)[None].detach().cpu().float(),16000)
