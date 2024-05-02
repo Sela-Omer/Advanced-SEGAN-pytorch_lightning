@@ -18,7 +18,7 @@ Attached is a table of the metrics showcasing the performance of our Advanced SE
 |COVL|2.63|2.67|2.8|2.5|2.92|
 |SSNR|1.68|5.07|7.73|9.9|9.75|
 
-‘Noisy’, ‘Weiner’ and ‘Original SEGAN’ were taken from `Pascual, S., Bonafonte, A., & Serra, J. (2017). SEGAN: Speech Enhancement Generative Adversarial Network. Retrieved from [arXiv:1703.09452](https://arxiv.org/abs/1703.09452)`.
+‘Noisy’, ‘Weiner’ and ‘Original SEGAN’ were taken from `Pascual, S., Bonafonte, A., & Serra, J. (2017). SEGAN: Speech Enhancement Generative Adversarial Network`. Retrieved from [arXiv:1703.09452](https://arxiv.org/abs/1703.09452).
 
 ## Installation
 
