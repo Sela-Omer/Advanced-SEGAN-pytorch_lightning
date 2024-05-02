@@ -8,6 +8,17 @@ To gain a comprehensive understanding of the methodologies and enhancements appl
 
 Advanced SEGAN builds upon the original SEGAN (Speech Enhancement Generative Adversarial Network) model, introducing significant improvements in architecture and training processes. This enhanced version leverages Pytorch Lightning to facilitate scalable and efficient training, suitable for both research and practical applications. The modifications are aimed at improving the clarity and quality of speech audio signals by reducing background noise more effectively than the original model.
 
+Attached is a table of the metrics showcasing the performance of our Advanced SEGAN Architecture.
+
+|Metric|Noisy|Wiener|Original SEGAN|Our Basic SEGAN|Advanced SEGAN|
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|PESQ|1.97|2.22|2.16|2.17|2.34|
+|CSIG|3.35|3.23|3.48|2.93|3.5|
+|CBAK|2.44|2.68|2.94|2.99|3.19|
+|COVL|2.63|2.67|2.8|2.5|2.92|
+|SSNR|1.68|5.07|7.73|9.9|9.75|
+‘Noisy’, ‘Weiner’ and ‘Original SEGAN’ were taken from `Pascual, S., Bonafonte, A., & Serra, J. (2017). SEGAN: Speech Enhancement Generative Adversarial Network. Retrieved from [arXiv:1703.09452](https://arxiv.org/abs/1703.09452)`.
+
 ## Installation
 
 ### Prerequisites
