@@ -2,7 +2,7 @@
 
 ## Read Our Article
 
-To gain a comprehensive understanding of the methodologies and enhancements applied in our Advanced SEGAN project, please refer to our detailed Medium article: [Advancing SEGAN: Proposing and Evaluating Architectural Improvements](https://medium.com/path-to-your-article).
+To gain a comprehensive understanding of the methodologies and enhancements applied in our Advanced SEGAN project, please refer to our detailed Medium article: [Advancing SEGAN: Proposing and Evaluating Architectural Improvements](https://medium.com/@Omer_Sela/advancing-segan-proposing-and-evaluating-architectural-improvements-3e367c71758a).
 
 ## Overview
 
