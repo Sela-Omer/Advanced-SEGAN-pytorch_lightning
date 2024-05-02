@@ -8,8 +8,6 @@ To gain a comprehensive understanding of the methodologies and enhancements appl
 
 Advanced SEGAN builds upon the original SEGAN (Speech Enhancement Generative Adversarial Network) model, introducing significant improvements in architecture and training processes. This enhanced version leverages Pytorch Lightning to facilitate scalable and efficient training, suitable for both research and practical applications. The modifications are aimed at improving the clarity and quality of speech audio signals by reducing background noise more effectively than the original model.
 
-<iframe width="100%" height="100" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/1812170907&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe><div style="font-size: 10px; color: #cccccc;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;font-weight: 100;"><a href="https://soundcloud.com/omer-sela13" title="Omer Sela" target="_blank" style="color: #cccccc; text-decoration: none;">Omer Sela</a> · <a href="https://soundcloud.com/omer-sela13/noisy-test-audio" title="Noisy TEST Audio" target="_blank" style="color: #cccccc; text-decoration: none;">Noisy TEST Audio</a></div>
-
 ## Installation
 
 ### Prerequisites
